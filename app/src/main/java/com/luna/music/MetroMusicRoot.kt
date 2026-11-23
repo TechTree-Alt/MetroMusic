@@ -55,7 +55,6 @@ import com.metrocompose.MetroRegular
 import com.metrocompose.MetroRisingPage
 import com.metrocompose.MetroTheme
 import com.metrocompose.MetroTopBanner
-import com.metrocompose.MetroSemilight
 import com.metrocompose.MetroLight
 import com.metrocompose.MetroProgressBar
 import androidx.compose.foundation.layout.Row
@@ -445,8 +444,8 @@ fun MetroMusicRoot(
     // what appears instead. Built here rather than with the framework's MetroVolumeBanner so it can
     // be just the caption, the level and the bar: no speaker glyph, and no now-playing row — the
     // banner arrives because a volume key was pressed, and the strip and the player already say
-    // what is playing. The caption follows the Metro type ramp (lowercase Semilight at the
-    // medium-large size, no tracking) and sits on the number's baseline, as the phone's did.
+    // what is playing. The caption is set exactly like the number — lowercase, Light, the same
+    // size, no tracking — and shares its baseline, so the two read as one line across the strip.
     MetroTopBanner(
         visible = volume.showing,
         onHide = { services.volume.hide() },
@@ -456,8 +455,8 @@ fun MetroMusicRoot(
             Text(
                 text = stringResource(R.string.volume),
                 color = MetroTheme.colors.fg,
-                fontFamily = MetroSemilight,
-                fontSize = 22.sp,
+                fontFamily = MetroLight,
+                fontSize = 30.sp,
                 maxLines = 1,
                 modifier = Modifier
                     .weight(1f)
