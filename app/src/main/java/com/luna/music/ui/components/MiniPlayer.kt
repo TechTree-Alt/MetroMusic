@@ -260,3 +260,6 @@ fun MiniPlayer(
         }
     }
 }
+
+/** How far the strip's contents rise into place as the player hands over to them. */
+private val StripRise = 16.dp
