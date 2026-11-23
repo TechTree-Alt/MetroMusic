@@ -37,7 +37,7 @@ an older MetroMusic rather than updating it, and starts with fresh settings, pla
 play counts. The playlist files themselves are ordinary `.m3u` files and are found again.
 
 **The playing album is the background.** Behind the home panorama and every page, the cover of
-what is playing now, softened, tinted with the accent colour and washed into the theme so the text
+what is playing now, lightly softened and washed into the theme so the text
 stays readable. It fades from one cover to the next as the songs change. With nothing playing it is
 the gradient, and Settings → theme can turn the cover off.
 

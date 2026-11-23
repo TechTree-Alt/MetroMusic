@@ -18,10 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
@@ -41,8 +39,8 @@ import com.luna.music.core.LocalServices
  * into an album keeps the wallpaper it had instead of dropping to a flat colour. Only the movement
  * differs: under the panorama it pans with the finger, under a page it stays put.
  *
- * What it draws is the album that is playing, tinted with the accent and washed into the theme's
- * background so the text over it stays readable. With nothing playing, no cover to show, or the
+ * What it draws is the album that is playing, softened and washed into the theme's background so
+ * the text over it stays readable. With nothing playing, no cover to show, or the
  * setting off, it is a gradient made from the theme's own background — so light mode, dark mode
  * and a custom colour all look like themselves rather than like the dark theme with other text.
  */
@@ -106,13 +104,11 @@ private fun GradientBackdrop() {
 }
 
 /**
- * The playing album's cover as the backdrop: cropped to fill, softened, tinted with the accent, and
- * washed into the theme's background.
+ * The playing album's cover as the backdrop: cropped to fill, softened, and washed into the theme's
+ * background, in its own colours.
  *
  * The softening is a blur on Android 12 and later; before that the cover is a small decode scaled
- * up, which is soft enough by itself. The tint is the accent laid over the picture — the cover
- * keeps its shapes and its light and dark, and takes on the colour the user chose for the app, so
- * the backdrop belongs to the theme instead of fighting it. The wash on top runs from light at the
+ * up, which is soft enough by itself. The wash on top runs from light at the
  * top, where the panorama's title is large enough to survive anything, to nearly solid at the
  * bottom where the rows are: the foreground is text with no plate behind it, and album art is not
  * designed to be read over.
@@ -140,8 +136,7 @@ private fun ArtworkBackdrop(cover: Bitmap, widen: Float = 1f) {
             bitmap = cover.asImageBitmap(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.tint(colors.accent.copy(alpha = TintAlpha), BlendMode.SrcAtop),
-            modifier = Modifier.fillMaxSize().blur(24.dp)
+            modifier = Modifier.fillMaxSize().blur(BlurRadius)
         )
         Box(
             Modifier.fillMaxSize().background(
@@ -168,7 +163,10 @@ const val PanoramaBackdropWiden = 1.4f
 private val TintCool = Color(0xFF1BA1E2)
 private val TintWarm = Color(0xFFD80073)
 
-/** How much of the accent is laid over the cover: enough to colour it, not enough to hide it. */
-private const val TintAlpha = 0.35f
+/**
+ * How soft the cover is behind the text: enough that its details do not compete with the rows, little
+ * enough that the picture is still recognisably the album.
+ */
+private val BlurRadius = 10.dp
 
 private const val BackdropFadeMillis = 600
