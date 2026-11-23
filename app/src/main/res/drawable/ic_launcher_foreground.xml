@@ -1,47 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The launcher icon's glyph: a pair of headphones, simplified to a flat white silhouette — a
-     headband with a cushion strip under it, and on each side an ear cup with its pad standing
-     slightly apart, so the shape still reads at the size of a fingertip.
+<!-- The launcher icon's glyph: headphones as one flat white silhouette — a thick headband whose
+     inner edge breaks into a notch above each slider, narrow sliders running down into the cups,
+     and D-shaped ear cups with their pads standing a step taller at the top inner corner.
 
-     Metro icon conventions: one colour, solid fills, no outline or shadow, on a flat tile
-     (ic_launcher_background). Drawn on the 108dp adaptive canvas at a scale that keeps every point
-     within about 29dp of the centre, so no mask a launcher applies can reach it. The same paths
-     are the themed-icon layer (ic_launcher_monochrome); keep the two identical. -->
+     Sized so the visible 72dp of the adaptive canvas plays the part of the tile: the glyph takes
+     the same share of it as on a Metro tile, which keeps every point within about 23dp of the
+     centre, well inside the 33dp any launcher mask leaves. The headband is one path with the
+     notches cut into it; each cup is one path. The same paths are the themed-icon layer
+     (ic_launcher_monochrome); keep the two identical. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:pivotX="54"
-        android:pivotY="54"
-        android:scaleX="0.9"
-        android:scaleY="0.9">
-        <group android:translateY="1.0">
-        <!-- headband -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M31,52 A23,23 0 0 1 77,52 L77,63 L72.5,63 L72.5,52 A18.5,18.5 0 0 0 35.5,52 L35.5,63 L31,63 Z" />
-        <!-- cushion -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M39.75,43.10 A16.8,16.8 0 0 1 68.25,43.10 L65.53,44.79 A13.6,13.6 0 0 0 42.47,44.79 Z" />
-        <!-- left cup -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M37,58 L33,58 A4,4 0 0 0 29,62 L29,73 A4,4 0 0 0 33,77 L37,77 Z" />
-        <!-- left pad -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M38.6,59.5 L40.6,59.5 A1,1 0 0 1 41.6,60.5 L41.6,74.5 A1,1 0 0 1 40.6,75.5 L38.6,75.5 Z" />
-        <!-- right cup -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M71,58 L75,58 A4,4 0 0 1 79,62 L79,73 A4,4 0 0 1 75,77 L71,77 Z" />
-        <!-- right pad -->
-        <path
-            android:fillColor="@android:color/white"
-            android:pathData="M69.4,59.5 L67.4,59.5 A1,1 0 0 0 66.4,60.5 L66.4,74.5 A1,1 0 0 0 67.4,75.5 L69.4,75.5 Z" />
-        </group>
-    </group>
+    <!-- headband -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M35.19,53.11 A18.81,18.81 0 0 1 72.81,53.11 L72.81,61.18 L70.71,61.18 L70.71,53.11 L69.9,52.79 L67.32,44.88 L64.82,46.17 A12.75,12.75 0 0 0 43.18,46.17 L40.68,44.88 L38.1,52.79 L37.29,53.11 L37.29,61.18 L35.19,61.18 Z" />
+    <!-- left cup -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M46.01,54.89 L42.46,54.89 C40.2,55.21 38.26,56.5 37.29,58.12 L35.19,58.6 L35.19,65.22 C35.19,69.58 37.94,73.61 42.46,73.61 L46.01,73.61 Z" />
+    <!-- right cup -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M61.99,54.89 L65.54,54.89 C67.8,55.21 69.74,56.5 70.71,58.12 L72.81,58.6 L72.81,65.22 C72.81,69.58 70.06,73.61 65.54,73.61 L61.99,73.61 Z" />
 </vector>
