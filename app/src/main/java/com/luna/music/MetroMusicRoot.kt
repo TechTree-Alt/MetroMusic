@@ -22,9 +22,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.metrocompose.metroTurnstile
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
@@ -291,19 +288,11 @@ fun MetroMusicRoot(
                 LocalOpenPlayer provides { playerOpen = true },
                 LocalOpenLyrics provides { trackId -> nav.push(Screen.Lyrics(trackId)) }
             ) {
-                MetroNavHost(
-                    nav,
-                    Modifier.weight(1f),
-                    // The framework's turnstile, without the size animation AnimatedContent adds by
-                    // default. That one springs the page area towards a new height whenever the
-                    // pages' heights differ — which they do for a moment whenever the bar under the
-                    // strip comes or goes — and a page turning in while its frame springs is a page
-                    // that bobs. The frame now simply takes the new size.
-                    transition = { popping ->
-                        metroTurnstile(reverse = popping) using
-                            SizeTransform(clip = false) { _, _ -> snap() }
-                    }
-                ) { screen ->
+                // The framework's own page turn, size animation and all. It was briefly given an
+                // instant "snap" in place of that, to stop the frame springing while the bar under the
+                // strip came and went; the bar no longer resizes anything frame by frame, and the snap
+                // made Back flash the page being returned to for a frame before its turn began.
+                MetroNavHost(nav, Modifier.weight(1f)) { screen ->
                     when (screen) {
                         Screen.Collection -> CollectionScreen(onNavigate = nav::push)
                         Screen.Playlists -> PlaylistsScreen(onNavigate = nav::push)
