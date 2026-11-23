@@ -19,6 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import com.luna.music.ui.components.LocalHomeBarSpace
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.graphics.Color
@@ -290,6 +293,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 }
             )
           }
+            // The room the shell's application bar — and the strip raised over it — take at the
+            // bottom of the screen. Kept here, inside the page, so the page area itself is the same
+            // height on every screen; see LocalHomeBarSpace.
+            Spacer(Modifier.height(LocalHomeBarSpace.current))
         }
         HomeHeaders(
             titles = sectionTitles,

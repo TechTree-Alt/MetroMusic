@@ -31,8 +31,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
 import com.luna.music.ui.components.HomeAppBar
+import com.luna.music.ui.components.LocalHomeBarSpace
 import com.metrocompose.MetroBarRiseMillis
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -154,15 +154,17 @@ fun MetroMusicRoot(
     // out of the strip's real top edge: the bar's height (its content, not the gesture bar under it,
     // which the rising page adds by itself) goes into the height the page rests at.
     //
-    // **It takes its space in one step and moves by sliding, never by growing.** It used to unfold by
-    // animating its height, and the page area above it — a weighted share of the same column — shrank
-    // with it on every frame: the panorama coming back from a settings page was re-measured and
-    // re-laid out thirty times while it was also turning in, which is the jump that coming back had.
-    // Now the bar is in the layout or it is not, and the change is a single relayout, at the start
-    // of its arrival and at the end of its departure. What the eye sees is a slide: the bar and the
-    // strip are drawn displaced by the bar's height and travel into place ([appBarShown]), so the
-    // strip, which the bar's arrival lifts by its height in one frame, is drawn where it was and
-    // rises from there.
+    // **It never changes the height of the page area.** Every page is laid out at the same height
+    // whatever screen it is: the bar is drawn *over* the bottom of the screen rather than taking a
+    // place in the column, the strip is drawn raised by the bar's height while the bar is there, and
+    // the home screen keeps that much room clear at its own bottom ([LocalHomeBarSpace]).
+    //
+    // It used to take a place in the column, and the page area above it changed height whenever it
+    // came or went. Growing, that re-laid out the panorama on every frame of the page turn; taking its
+    // space in one step instead, the navigation host's own size animation sprang the page frame from
+    // the old height to the new one, drawing the page shifted up and settling back down before the
+    // turn began — the jump on Back. Nothing about the page area moves now, so neither can happen.
+    // The bar and the strip slide into and out of place together ([appBarShown]).
     val onHome = nav.current == Screen.Collection
     val navigationInsetPx =
         with(density) { WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().roundToPx() }
@@ -172,8 +174,13 @@ fun MetroMusicRoot(
         animationSpec = tween(MetroBarRiseMillis),
         label = "app bar"
     )
-    val appBarInLayout = onHome || appBarShown > 0f
-    val appBarHeight = if (appBarInLayout) with(density) { appBarPx.toDp() } else 0.dp
+    val appBarPresent = onHome || appBarShown > 0f
+    val appBarHeight = if (appBarPresent) with(density) { appBarPx.toDp() } else 0.dp
+    // What the home screen keeps clear under its sections: the bar, and the gesture bar under it as
+    // well when there is no strip — the strip, when there is one, answers for the gesture bar itself.
+    val homeBarSpace = with(density) {
+        (appBarPx + if (playerState.hasTrack) 0 else navigationInsetPx).toDp()
+    }
     val backdropPan = remember { BackdropPan() }
 
     val rising = rememberMetroRisingPage(
@@ -291,7 +298,8 @@ fun MetroMusicRoot(
         Column(Modifier.fillMaxSize()) {
             CompositionLocalProvider(
                 LocalOpenPlayer provides { playerOpen = true },
-                LocalOpenLyrics provides { trackId -> nav.push(Screen.Lyrics(trackId)) }
+                LocalOpenLyrics provides { trackId -> nav.push(Screen.Lyrics(trackId)) },
+                LocalHomeBarSpace provides homeBarSpace
             ) {
                 // The Windows Phone turnstile (see TurnstilePage): the old page turns away about its
                 // left edge, then the new one swings in. The host's own transition is only asked to
@@ -345,44 +353,41 @@ fun MetroMusicRoot(
             // it the player's full-bleed artwork ends its drop by turning into a black rectangle.
             MetroBottomBar(
                 visible = playerState.hasTrack,
-                // The bar under it answers for the gesture bar while it is there.
-                modifier = Modifier
-                    .consumeWindowInsets(
-                        if (appBarInLayout) WindowInsets.navigationBars else WindowInsets(0.dp)
-                    )
-                    .graphicsLayer {
-                        translationY = if (appBarInLayout) (1f - appBarShown) * appBarPx else 0f
-                    },
+                // Raised by the bar's height while the bar is there, so it sits on top of it.
+                modifier = Modifier.graphicsLayer {
+                    translationY = -appBarShown * appBarPx
+                },
                 background = { MiniPlayerBackdrop(backdropArt, backdropHeight) }
             ) {
                 MiniPlayer(state = playerState, rising = rising, onOpen = { playerOpen = true })
             }
+        }
 
-            // The home screen's application bar, under the strip. It belongs to the home screen
-            // alone, so it folds away as a page is opened over it and unfolds on the way back.
-            //
-            // The player rises out of the strip above it and covers it on the way up; on the way back
-            // down the bar comes back with the strip, fading in as it rises into place over the last
-            // stretch of the drop — the same hand-off as the strip's (see StripHandOff).
-            //
-            // Searching the whole library is its one command, one tap from every section, and it
-            // does not compete with the section headers, whose tap filters that section only.
-            if (appBarInLayout) {
-                HomeAppBar(
-                    onSearch = { nav.push(Screen.Search) },
-                    insetNavigationBar = true,
-                    modifier = Modifier
-                        .onSizeChanged { appBarPx = (it.height - navigationInsetPx).coerceAtLeast(0) }
-                        .graphicsLayer {
-                            val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
-                            alpha = (1f - covered) * appBarShown
-                            // Below the bottom edge by its whole height when not shown, and the
-                            // player hand-off's small rise on top of that.
-                            translationY = (1f - appBarShown) * size.height +
-                                covered * AppBarRise.toPx()
-                        }
-                )
-            }
+        // The home screen's application bar, over the bottom of the screen, under the strip — which
+        // is drawn raised by its height. It belongs to the home screen alone, so it slides away as a
+        // page is opened over it and slides back on the way home.
+        //
+        // The player rises out of the strip above it and covers it on the way up; on the way back
+        // down the bar comes back with the strip, fading in as it rises into place over the last
+        // stretch of the drop — the same hand-off as the strip's (see StripHandOff).
+        //
+        // Searching the whole library is its one command, one tap from every section, and it does not
+        // compete with the section headers, whose tap filters that section only.
+        if (appBarPresent) {
+            HomeAppBar(
+                onSearch = { nav.push(Screen.Search) },
+                insetNavigationBar = true,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged { appBarPx = (it.height - navigationInsetPx).coerceAtLeast(0) }
+                    .graphicsLayer {
+                        val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
+                        alpha = (1f - covered) * appBarShown
+                        // Below the bottom edge by its whole height when not shown, and the player
+                        // hand-off's small rise on top of that.
+                        translationY = (1f - appBarShown) * size.height + covered * AppBarRise.toPx()
+                    }
+            )
         }
 
         // Full bleed: the player's artwork backdrop reaches the bottom edge of the screen rather

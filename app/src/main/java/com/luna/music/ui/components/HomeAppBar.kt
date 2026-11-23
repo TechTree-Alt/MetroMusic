@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -209,6 +210,13 @@ private fun Ellipsis(tint: Color) {
         repeat(3) { i -> drawCircle(tint, r, Offset(r + step * i, r)) }
     }
 }
+
+/**
+ * How much room the home screen keeps clear at its bottom for the application bar, which the shell
+ * draws over the bottom of the screen rather than giving a place in the layout (so that no page ever
+ * changes height when it comes and goes).
+ */
+val LocalHomeBarSpace = compositionLocalOf { 0.dp }
 
 /** The phone's application-bar greys: #1F1F1F under the dark theme, #DDDDDD under the light one. */
 private val DarkChrome = Color(0xFF1F1F1F)
