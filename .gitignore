@@ -23,6 +23,8 @@ local.properties
 keystore.properties*
 *.jks
 *.keystore
+# …except the shared debug key, which is public on purpose — see signingConfigs in app/build.gradle.kts.
+!signing/shared-debug.keystore
 # The keystore again, in the form GitHub Actions takes it: base64 in a text file is still the key.
 *.jks.base64.txt
 

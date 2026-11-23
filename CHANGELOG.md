@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**Test builds install over each other.** Builds made without the release key — every GitHub Actions
+build until the signing secrets are set — are now all signed with one shared debug key kept in the
+repository, instead of a new random key per build that Android refused to install as an update.
+Uninstall a build made before this change once; from then on each new APK updates the last.
+
 **A flick puts the player away.** The swipe down measured the finger's speed against the page, which
 moves down with the finger, so a quick flick read as no speed at all and only a long drag closed the
 player. Any downward flick now does. The caret under the transport is gone.
