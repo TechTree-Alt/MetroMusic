@@ -40,6 +40,8 @@
     <string name="unknown">unknown</string>
 
     <!-- ==== home panorama ==== -->
+    <!-- The big title across the top of the home panorama. -->
+    <string name="home_title">music</string>
     <string name="collection_title">collection</string>
     <string name="section_artists">artists</string>
     <string name="section_albums">albums</string>
@@ -144,7 +146,7 @@
     <string name="theme_dark">dark</string>
     <string name="theme_light">light</string>
     <string name="theme_tap_to_switch">tap to switch</string>
-    <string name="theme_artwork_background">album art behind the panorama</string>
+    <string name="theme_artwork_background">now playing album art as the background</string>
     <string name="theme_explainer">the accent colours every tile, header and toggle in the app;
         the background is what the panorama and every page sit on.</string>
 
@@ -195,6 +197,7 @@
     <string name="interface_collapse_explainer">the big title — and on an album page its cover and
         buttons — give up their height to the list once you scroll it, and come back when you drag that
         list past its top.</string>
+    <string name="interface_album_grid">albums as a grid of covers</string>
     <string name="interface_letter_tiles">accent square behind group letters</string>
     <string name="interface_artist_albums">albums on an artist’s page</string>
     <string name="interface_artist_albums_year">newest first</string>
@@ -360,13 +363,19 @@
     <string name="menu_merge_genre">merge into…</string>
     <string name="search_placeholder">search</string>
 
-    <!-- ==== searching the whole library, from the "more" section ==== -->
+    <!-- ==== searching the whole library, from the home panorama's application bar ==== -->
     <string name="search_title">search</string>
-    <string name="search_everywhere">artists, albums, songs, genres, playlists</string>
+    <!-- The caption of the app bar's search button, shown when the bar is opened with its "…". -->
+    <string name="action_search">search</string>
+    <!-- Spoken name of the app bar's "…", which shows the captions of the buttons beside it. -->
+    <string name="appbar_more">show button labels</string>
     <string name="search_hint">type to search the whole library.</string>
     <!-- No result at all; the query is repeated back so it is clear what was asked. -->
     <string name="search_nothing">nothing here matches “%1$s”.</string>
     <string name="press_back_again">press back again to close</string>
+    <!-- The state written under a switch's title on a settings row. -->
+    <string name="switch_on">on</string>
+    <string name="switch_off">off</string>
     <string name="action_cancel">cancel</string>
 
     <!-- ==== how a section is arranged: the picker a group header opens on a hold ==== -->

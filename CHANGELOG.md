@@ -2,6 +2,112 @@
 
 ## Unreleased
 
+**The real Windows Phone turnstile.** Opening a page, the one you are on turns away about its left
+edge and the new one swings in after it, with the phone's own angles, timing and easing (the values
+in Microsoft's published Windows Phone Toolkit); going back plays it in mirror. Settings pages open
+the phone's way too: the header and then each row turn in one after another, like slats of a door.
+
+**Coming back to the home screen no longer bobs.** Three things moved under the page as it turned
+back in: the home screen read its own position off the screen while the turn was still scaling it,
+so the title slid up and the background swung; the app bar under the strip unfolded by growing, which
+re-laid out the whole panorama on every frame of the turn; and the page frame sprang to its new
+height. Positions are now read against the page itself, and the app bar under the strip is drawn
+over the bottom of the screen with the strip raised above it, so no page changes height when it comes
+and goes — nothing for the frame to spring towards.
+
+**Nothing cut off at the top of the home screen.** The dot of the i in "music" and the tails of the g,
+p and y in the section names were clipped; the title has more room above it and the section names are
+no longer cut at the baseline.
+
+**The app bar is at the very bottom.** On the home screen the search bar sits under the now-playing
+strip. The player covers it as it rises and it comes back with the strip as the player closes; it
+folds away when another page opens.
+
+**Settings pages deal their rows in.** Opening a settings page, its rows swing in one after another
+from the left edge, the phone's own entrance, instead of appearing all at once.
+
+**No jump in the background coming back to the home screen.** The whole app shares one backdrop now;
+the home panorama pans it rather than drawing a copy of its own that turned with every page transition.
+
+**One title, with parallax.** "music" is drawn once across the top of the home panorama and slides a
+little way left as you go through the sections, slower than they do, then slides home on the wrap —
+the phone's panorama parallax — instead of repeating along the screen.
+
+**Everything tilts when pressed.** List rows, albums, tiles, menu entries and settings rows tip
+towards the finger and sink slightly while held, the Windows Phone press response, instead of
+Compose's grey highlight.
+
+**"music" across the top.** The home panorama's big title is "music" (음악 in Korean) instead of the
+app's name, as the phone's own music hub was titled.
+
+**The cover pans one way.** Behind the home panorama the album cover drifts in one direction from the
+first section to the last instead of turning round in the middle one, and slides back only during the
+swipe that wraps from the last section round to the first.
+
+**Test builds install over each other.** Builds made without the release key — every GitHub Actions
+build until the signing secrets are set — are now all signed with one shared debug key kept in the
+repository, instead of a new random key per build that Android refused to install as an update.
+Uninstall a build made before this change once; from then on each new APK updates the last.
+
+**A flick puts the player away.** The swipe down measured the finger's speed against the page, which
+moves down with the finger, so a quick flick read as no speed at all and only a long drag closed the
+player. Any downward flick now does. The caret under the transport is gone.
+
+**The strip is there as the player lands.** The last part of the player's drop cross-fades into the
+strip, whose contents rise into place, instead of the strip appearing after the page had settled.
+
+**No seam in the album-art background.** The cover behind the home panorama still drifts sideways
+as the sections go by, and no longer shows a hard vertical edge: the panning copy was drawn only as
+wide as the screen, so the pan uncovered a strip of the still copy behind it. It is drawn wide enough
+to pan inside now.
+
+**Albums as a grid of covers.** Settings → interface → *albums as a grid of covers* shows the albums
+section as two columns of large square covers. The group headings, the alphabet zoom-out, the
+hold-to-sort menu and the edge scrub all work as they do in the list. An album with no cover is a
+coloured tile with its name on it.
+
+**Bigger type on the player.** The artist is set large and light as the page's heading and runs off
+the edge of the screen rather than being cut short with "…"; the album and the song title are bigger
+too. They step back down while the player shows the words.
+
+**The player is easier to push away.** A downward push collapses the player even when the thumb's
+arc starts it off diagonally; it used to be read as a sideways swipe and change track or spring
+back. Mostly-downward drags anywhere on the player now take it down with the finger.
+
+**New package name: `com.luna.music`.** Android treats this as a different app: it installs beside
+an older MetroMusic rather than updating it, and starts with fresh settings, playlists' state and
+play counts. The playlist files themselves are ordinary `.m3u` files and are found again.
+
+**The playing album is the background.** Behind the home panorama and every page, the cover of
+what is playing now, lightly softened and washed into the theme so the text
+stays readable. It fades from one cover to the next as the songs change. With nothing playing it is
+the gradient, and Settings → theme can turn the cover off.
+
+**Light mode is light.** Switching to the light theme, or following the device into it, changed the
+text but left the background dark: the gradient behind every page was drawn in fixed dark colours.
+It is made from the theme's background now, so white is white and a custom colour shows as itself.
+Choosing dark or light by hand also clears a custom background colour that would otherwise have kept
+the screen as it was, and following the device sets a custom colour aside rather than holding the
+app on one side of the switch.
+
+**The toggle switch is the phone's.** An outlined track, an accent fill set in from it, and a solid
+thumb taller than the track with a gap either side, instead of a small block floating in a box. The
+state under each setting is written in the app's language.
+
+**한국어.** The whole app is translated into Korean, and the indexes speak it too: Korean names are
+filed under their initial consonant, ㄱ to ㅎ, the way a Korean phone book files them, instead of
+all landing under `#`. Tense doubles go with their plain consonant (까치 beside 가수). A phone set to
+Korean reads ㄱ–ㅎ before A–Z in the jump grid. Searching takes the initial-consonant shorthand as
+well: ㅂㅌㅅㄴㄷ finds 방탄소년단. On Android 13 and later the language can also be picked for this app
+alone, under Settings → Apps → MetroMusic → Language.
+
+**Search is on the application bar.** The home panorama has a WP8 application bar along the bottom
+with a search button, one tap from every section; its ••• shows the button's label. Searching the
+whole library used to be a row in *more*.
+
+**A new icon.** Simplified white headphones on a flat WP8 red tile (#E51400), drawn as an adaptive icon: it fits
+any shape a launcher cuts it to, and Android 13's themed icons get the headphones on their own.
+
 **Music on a USB drive, an SD card or any folder** ([#9]). Android does not list every drive in its
 media library, so music on a USB stick on an OTG cable was invisible here. Settings → library has a
 *folders* list now: add a folder with the system's folder picker, or a connected drive in one tap,

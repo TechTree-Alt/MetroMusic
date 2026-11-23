@@ -53,11 +53,11 @@ fun localProperty(name: String): String =
         ?: lastFmProperties.getProperty(name).orEmpty()
 
 android {
-    namespace = "com.metromusic"
+    namespace = "com.luna.music"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.metromusic"
+        applicationId = "com.luna.music"
         minSdk = 26
         targetSdk = 36
         versionCode = 9
@@ -81,6 +81,23 @@ android {
     }
 
     signingConfigs {
+        // The debug key is a fixed one committed at signing/shared-debug.keystore, not the one the
+        // Android tools generate per machine. Every build without the release secrets is signed with
+        // the debug key — CI included — and a GitHub runner is a new machine every time, so each
+        // build had a different signature and Android refused to install it over the last one
+        // ("package conflicts with an existing package"). One shared key makes every such build an
+        // update of the one before, wherever it was built.
+        //
+        // It is not a secret: the password is the debug key's usual "android" and the file is public
+        // with the source, so anyone with the repository can sign an APK that installs over a build
+        // signed with it. The release key, from keystore.properties or the Actions secrets, is the
+        // private one and wins whenever it is present.
+        getByName("debug") {
+            storeFile = rootProject.file("signing/shared-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         if (releaseKeystore.isNotEmpty()) {
             create("release") {
                 storeFile = rootProject.file(releaseKeystore.getProperty("storeFile"))
@@ -112,6 +129,13 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    // No lint pass inside a release build. `assembleRelease` otherwise runs lint's "vital" checks
+    // first, and on CI that was two of the five minutes of every build — longer than compiling the
+    // app and shrinking it put together. Lint is still there to run by hand (`./gradlew lint`); it
+    // just no longer stands between a commit and its APK, here or on F-Droid's builder.
+    lint {
+        checkReleaseBuilds = false
     }
 }
 
