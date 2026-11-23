@@ -20,6 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.metrocompose.MetroTheme
+import com.metrocompose.MetroLight
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.onSizeChanged
@@ -123,6 +135,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     val sectionPx = (widthPx - sectionPadPx).coerceAtLeast(1f)
     val lapPx = sectionPx * sections.size
     var travelled by remember { mutableFloatStateOf(0f) }
+    // How far the title has rolled up, read the same way: the sections rise by exactly as much as
+    // the title gives up (see `collapsingTitle`), so their top edge, against where it rests, is it.
+    var sectionTopPx by remember { mutableFloatStateOf(Float.NaN) }
+    var sectionRestPx by remember { mutableFloatStateOf(Float.NaN) }
 
     Box(Modifier.fillMaxSize().onSizeChanged { widthPx = it.width }) {
         if (showsCover) {
@@ -149,7 +165,12 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 // "music" as the big title, and no overline above it — the hub's name, as the phone's
                 // own music hub had it, rather than the app's. A second line over it would cost height
                 // on the one screen where height is the scarce thing.
-                title = stringResource(R.string.home_title),
+                // The panorama's own title is left empty and drawn by [HomeTitle] instead, once. The
+                // panorama repeats its title along the loop so that going round is seamless, and a
+                // short word like "music" came round three times; its only control, the speed,
+                // makes the copies overlap when turned down. Empty, it still keeps the title's
+                // height, so everything under it sits exactly where it did.
+                title = "",
                 overline = null,
                 // The same drawing the shell puts behind every other page, so the wallpaper does not
                 // change when you leave the panorama — here it parallaxes, there it stays put. The
@@ -183,9 +204,14 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                             // starts one padding in from the left edge, and every section to the
                             // left of it is a section's width further round.
                             .onGloballyPositioned { coordinates ->
+                                val position = coordinates.positionInWindow()
                                 if (lapPx > 0f) {
-                                    val x = coordinates.positionInWindow().x
-                                    travelled = (index * sectionPx - (x - sectionPadPx)).mod(lapPx)
+                                    travelled =
+                                        (index * sectionPx - (position.x - sectionPadPx)).mod(lapPx)
+                                }
+                                sectionTopPx = position.y
+                                if (sectionRestPx.isNaN() || position.y > sectionRestPx) {
+                                    sectionRestPx = position.y
                                 }
                             }
                         when (section) {
@@ -251,6 +277,15 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 insetNavigationBar = !playerState.hasTrack
             )
         }
+        HomeTitle(
+            text = stringResource(R.string.home_title),
+            travelPx = HomeTitleTravel * widthPx,
+            pan = { coverPan(travelled, sectionPx, sections.size) },
+            rolledUp = {
+                if (sectionTopPx.isNaN() || sectionRestPx.isNaN()) 0f
+                else (sectionRestPx - sectionTopPx).coerceAtLeast(0f)
+            }
+        )
         TrackActionsHost(actions)
         PlaylistPickerHost(picker)
     }
@@ -258,6 +293,57 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
 
 /** The panorama's own, parallaxing copy of the backdrop, for when the backdrop is the gradient. */
 private val GradientLayer: @Composable BoxScope.() -> Unit = { AppBackdrop() }
+
+/**
+ * The home panorama's giant title, drawn once, where the panorama would draw it and as it would draw
+ * it — the framework's 108sp light weight, the same indent, the same trim of the font's blank above the
+ * letters, and the same clip under the status bar for when it rolls away.
+ *
+ * It moves at a fraction of the sections' speed, which is the parallax the phone's panorama is known
+ * for: by [pan], 0 to 1 round the lap as the cover moves, so across all the sections the word slides
+ * [travelPx] — under a third of the screen — to the left and slides home again on the wrap — never off the
+ * screen and never repeated. [rolledUp] is how far the title has given its height up to the list, in
+ * px, so it leaves upwards in step with the sections when "roll the title away" is on.
+ *
+ * Both are read in the layer, so a swipe or a scroll moves it without recomposing anything.
+ */
+@Composable
+private fun HomeTitle(text: String, travelPx: Float, pan: () -> Float, rolledUp: () -> Float) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .clipToBounds()
+    ) {
+        Text(
+            text = text,
+            color = MetroTheme.colors.fg,
+            fontFamily = MetroLight,
+            fontSize = HomeTitleSize,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Visible,
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+            modifier = Modifier
+                .wrapContentWidth(align = Alignment.Start, unbounded = true)
+                // The panorama's: 22dp in, and 6dp under the status bar less the 30dp of blank the
+                // font keeps above the letters at this size.
+                .offset(x = 22.dp, y = HomeTitleTop - HomeTitleInkTop)
+                .graphicsLayer {
+                    translationX = -pan() * travelPx
+                    translationY = -rolledUp()
+                }
+        )
+    }
+}
+
+/** The panorama's title size and its spacing, copied from the framework so the two agree. */
+private val HomeTitleSize = 108.sp
+private val HomeTitleTop = 6.dp
+private val HomeTitleInkTop = 30.dp
+
+/** How far the title slides over a whole lap, as a share of the screen's width. */
+private const val HomeTitleTravel = 0.3f
 
 /** The panorama's gutter, which is also the offset of a section at rest from the left edge. */
 private val PanoramaSectionPadding = 2.dp

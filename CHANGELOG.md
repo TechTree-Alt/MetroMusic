@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+**One title, with parallax.** "music" is drawn once across the top of the home panorama and slides a
+little way left as you go through the sections, slower than they do, then slides home on the wrap —
+the phone's panorama parallax — instead of repeating along the screen.
+
+**Everything tilts when pressed.** List rows, albums, tiles, menu entries and settings rows tip
+towards the finger and sink slightly while held, the Windows Phone press response, instead of
+Compose's grey highlight.
+
 **"music" across the top.** The home panorama's big title is "music" (음악 in Korean) instead of the
 app's name, as the phone's own music hub was titled.
 

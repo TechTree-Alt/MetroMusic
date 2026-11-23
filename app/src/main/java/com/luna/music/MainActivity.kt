@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
@@ -23,6 +24,7 @@ import com.metrocompose.MetroTheme
 import com.luna.music.core.LocalServices
 import com.luna.music.core.Services
 import com.luna.music.ui.PermissionGate
+import com.luna.music.ui.components.MetroTiltIndication
 import com.luna.music.ui.nav.Screen
 import kotlinx.coroutines.launch
 
@@ -103,6 +105,9 @@ class MainActivity : ComponentActivity() {
                         ?.takeUnless { settings.followSystemTheme }
                         ?.let(::Color)
                 ) {
+                  // Every tappable thing tilts towards the finger when pressed, as on the phone,
+                  // instead of Compose's grey press wash — see MetroTiltIndication.
+                  CompositionLocalProvider(LocalIndication provides MetroTiltIndication) {
                     PermissionGate {
                         MetroMusicRoot(
                             initialScreen = startScreen,
@@ -110,6 +115,7 @@ class MainActivity : ComponentActivity() {
                             openPlayerRequests = openPlayerRequests
                         )
                     }
+                  }
                 }
             }
         }
