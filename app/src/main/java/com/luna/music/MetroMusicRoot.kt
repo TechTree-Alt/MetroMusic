@@ -22,6 +22,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.metrocompose.metroTurnstile
+import androidx.compose.animation.using
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
 import com.luna.music.ui.components.HomeAppBar
@@ -31,12 +36,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -153,18 +152,27 @@ fun MetroMusicRoot(
     // page's commands. So on the home screen the strip is that much higher, and the player has to rise
     // out of the strip's real top edge: the bar's height (its content, not the gesture bar under it,
     // which the rising page adds by itself) goes into the height the page rests at.
+    //
+    // **It takes its space in one step and moves by sliding, never by growing.** It used to unfold by
+    // animating its height, and the page area above it — a weighted share of the same column — shrank
+    // with it on every frame: the panorama coming back from a settings page was re-measured and
+    // re-laid out thirty times while it was also turning in, which is the jump that coming back had.
+    // Now the bar is in the layout or it is not, and the change is a single relayout, at the start
+    // of its arrival and at the end of its departure. What the eye sees is a slide: the bar and the
+    // strip are drawn displaced by the bar's height and travel into place ([appBarShown]), so the
+    // strip, which the bar's arrival lifts by its height in one frame, is drawn where it was and
+    // rises from there.
     val onHome = nav.current == Screen.Collection
-    val navigationInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val navigationInsetPx = with(density) { navigationInset.roundToPx() }
+    val navigationInsetPx =
+        with(density) { WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().roundToPx() }
     var appBarPx by remember { mutableIntStateOf(0) }
-    val appBarHeight = if (onHome) with(density) { appBarPx.toDp() } else 0.dp
-    // The strip stops answering for the gesture bar while the app bar is under it — the bar does — and
-    // takes it back as the bar leaves, at the same pace, so the strip does not jump.
-    val stripInsetTaken by animateDpAsState(
-        targetValue = if (onHome) navigationInset else 0.dp,
+    val appBarShown by animateFloatAsState(
+        targetValue = if (onHome) 1f else 0f,
         animationSpec = tween(MetroBarRiseMillis),
-        label = "strip inset"
+        label = "app bar"
     )
+    val appBarInLayout = onHome || appBarShown > 0f
+    val appBarHeight = if (appBarInLayout) with(density) { appBarPx.toDp() } else 0.dp
     val backdropPan = remember { BackdropPan() }
 
     val rising = rememberMetroRisingPage(
@@ -284,7 +292,19 @@ fun MetroMusicRoot(
                 LocalOpenPlayer provides { playerOpen = true },
                 LocalOpenLyrics provides { trackId -> nav.push(Screen.Lyrics(trackId)) }
             ) {
-                MetroNavHost(nav, Modifier.weight(1f)) { screen ->
+                MetroNavHost(
+                    nav,
+                    Modifier.weight(1f),
+                    // The framework's turnstile, without the size animation AnimatedContent adds by
+                    // default. That one springs the page area towards a new height whenever the
+                    // pages' heights differ — which they do for a moment whenever the bar under the
+                    // strip comes or goes — and a page turning in while its frame springs is a page
+                    // that bobs. The frame now simply takes the new size.
+                    transition = { popping ->
+                        metroTurnstile(reverse = popping) using
+                            SizeTransform(clip = false) { _, _ -> snap() }
+                    }
+                ) { screen ->
                     when (screen) {
                         Screen.Collection -> CollectionScreen(onNavigate = nav::push)
                         Screen.Playlists -> PlaylistsScreen(onNavigate = nav::push)
@@ -319,7 +339,14 @@ fun MetroMusicRoot(
             // it the player's full-bleed artwork ends its drop by turning into a black rectangle.
             MetroBottomBar(
                 visible = playerState.hasTrack,
-                modifier = Modifier.consumeWindowInsets(WindowInsets(bottom = stripInsetTaken)),
+                // The bar under it answers for the gesture bar while it is there.
+                modifier = Modifier
+                    .consumeWindowInsets(
+                        if (appBarInLayout) WindowInsets.navigationBars else WindowInsets(0.dp)
+                    )
+                    .graphicsLayer {
+                        translationY = if (appBarInLayout) (1f - appBarShown) * appBarPx else 0f
+                    },
                 background = { MiniPlayerBackdrop(backdropArt, backdropHeight) }
             ) {
                 MiniPlayer(state = playerState, rising = rising, onOpen = { playerOpen = true })
@@ -334,13 +361,7 @@ fun MetroMusicRoot(
             //
             // Searching the whole library is its one command, one tap from every section, and it
             // does not compete with the section headers, whose tap filters that section only.
-            AnimatedVisibility(
-                visible = onHome,
-                enter = expandVertically(tween(MetroBarRiseMillis), expandFrom = Alignment.Top) +
-                    fadeIn(tween(MetroBarRiseMillis)),
-                exit = shrinkVertically(tween(MetroBarRiseMillis), shrinkTowards = Alignment.Top) +
-                    fadeOut(tween(MetroBarRiseMillis / 2))
-            ) {
+            if (appBarInLayout) {
                 HomeAppBar(
                     onSearch = { nav.push(Screen.Search) },
                     insetNavigationBar = true,
@@ -348,8 +369,11 @@ fun MetroMusicRoot(
                         .onSizeChanged { appBarPx = (it.height - navigationInsetPx).coerceAtLeast(0) }
                         .graphicsLayer {
                             val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
-                            alpha = 1f - covered
-                            translationY = covered * AppBarRise.toPx()
+                            alpha = (1f - covered) * appBarShown
+                            // Below the bottom edge by its whole height when not shown, and the
+                            // player hand-off's small rise on top of that.
+                            translationY = (1f - appBarShown) * size.height +
+                                covered * AppBarRise.toPx()
                         }
                 )
             }

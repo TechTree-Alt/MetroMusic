@@ -19,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.CompositionLocalProvider
 import com.metrocompose.MetroSemilight
@@ -37,9 +39,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableFloatStateOf
@@ -144,7 +146,24 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     val realColors = MetroTheme.colors
     val sectionTitles = sections.map { stringResource(sectionTitleOf(it)) }
 
-    Box(Modifier.fillMaxSize().onSizeChanged { widthPx = it.width }) {
+    // **Measured against this page, never against the window.** A page coming back into view arrives
+    // through the turnstile — scaled up from 92% and slid in from the side — and a position read in
+    // window coordinates has that turn in it. Read that way, the sections seemed to start lower and to
+    // the side and then rise into place, so the title took the rise for being rolled away and slid up,
+    // and the backdrop's pan swung while the page settled: the whole screen jumped on the way back
+    // from a settings page. Relative to the page's own root the turn cancels out; only the panorama's
+    // own movements — its scroll, its title rolling away — are left.
+    //
+    // Held in a plain box rather than in state: it is written during placement (`onPlaced`), which
+    // happens before any section reports where it is, and nothing needs to recompose when it changes.
+    val page = remember { PageCoordinates() }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .onSizeChanged { widthPx = it.width }
+            .onPlaced { page.coordinates = it }
+    ) {
         Column(Modifier.fillMaxSize()) {
           CompositionLocalProvider(
               LocalMetroColors provides realColors.copy(fg = Color.Transparent)
@@ -201,7 +220,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                             // starts one padding in from the left edge, and every section to the
                             // left of it is a section's width further round.
                             .onGloballyPositioned { coordinates ->
-                                val position = coordinates.positionInWindow()
+                                val pageAt = page.coordinates
+                                    ?.takeIf { it.isAttached }
+                                    ?: return@onGloballyPositioned
+                                val position = pageAt.localPositionOf(coordinates, Offset.Zero)
                                 if (lapPx > 0f) {
                                     travelled =
                                         (index * sectionPx - (position.x - sectionPadPx)).mod(lapPx)
@@ -290,6 +312,11 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     }
 }
 
+/** Where the home page itself is laid out; see the note where it is written. */
+private class PageCoordinates {
+    var coordinates: LayoutCoordinates? = null
+}
+
 /**
  * The section headers — "artists", "albums", the next one leaning in from the right — drawn here
  * rather than by the panorama, in the same places and the same type.
@@ -323,9 +350,8 @@ private fun HomeHeaders(
     val spacing = widthPx - with(density) { HeaderPeek.toPx() }
     val indent = with(density) { (PanoramaSectionPadding + 24.dp).toPx() }
     val gap = with(density) { PanoramaHeaderGap.toPx() }
-    var originY by remember { mutableFloatStateOf(0f) }
-
-    Box(Modifier.fillMaxSize().onGloballyPositioned { originY = it.positionInWindow().y }) {
+    // At the page's own origin, which is what [sectionTop] is measured against.
+    Box(Modifier.fillMaxSize()) {
         titles.forEachIndexed { index, title ->
             Text(
                 text = title,
@@ -345,7 +371,7 @@ private fun HomeHeaders(
                             .mod(count.toFloat()) - count / 2f
                         val distance = kotlin.math.abs(away)
                         translationX = away * spacing + indent
-                        translationY = if (top.isNaN()) 0f else top - originY - gap - size.height
+                        translationY = if (top.isNaN()) 0f else top - gap - size.height
                         alpha = when {
                             top.isNaN() || distance > 2.2f -> 0f
                             else -> 1f - distance.coerceIn(0f, 1f) * (1f - AwayHeaderAlpha)

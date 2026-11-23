@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+**Coming back to the home screen no longer bobs.** Three things moved under the page as it turned
+back in: the home screen read its own position off the screen while the turn was still scaling it,
+so the title slid up and the background swung; the app bar under the strip unfolded by growing, which
+re-laid out the whole panorama on every frame of the turn; and the page frame sprang to its new
+height. Positions are now read against the page itself, the bar takes its space in one step and
+slides into view, and the frame takes its new size at once.
+
 **Nothing cut off at the top of the home screen.** The dot of the i in "music" and the tails of the g,
 p and y in the section names were clipped; the title has more room above it and the section names are
 no longer cut at the baseline.
