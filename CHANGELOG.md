@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+**The icon is orange.** The headphones now sit on WP8 orange (#FA6800) instead of red.
+
 **The real Windows Phone turnstile.** Opening a page, the one you are on turns away about its left
 edge and the new one swings in after it, with the phone's own angles, timing and easing (the values
 in Microsoft's published Windows Phone Toolkit); going back plays it in mirror. Settings pages open
