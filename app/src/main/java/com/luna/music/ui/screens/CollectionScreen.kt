@@ -3,7 +3,6 @@ package com.luna.music.ui.screens
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -20,6 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
+import com.metrocompose.MetroSemilight
+import com.metrocompose.LocalMetroColors
+import com.luna.music.ui.components.LocalBackdropPan
 import com.metrocompose.MetroTheme
 import com.metrocompose.MetroLight
 import androidx.compose.material3.Text
@@ -52,9 +56,6 @@ import com.luna.music.R
 import com.luna.music.core.LocalServices
 import com.luna.music.data.model.Album
 import com.luna.music.data.store.LibrarySection
-import com.luna.music.ui.components.AppBackdrop
-import com.luna.music.ui.components.PanoramaBackdropWiden
-import com.luna.music.ui.components.HomeAppBar
 import com.luna.music.ui.components.PlaylistPickerHost
 import com.luna.music.ui.components.TrackActionsHost
 import com.luna.music.ui.components.WideTile
@@ -123,12 +124,9 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
         }
     }
 
-    // Whether the backdrop is the playing album's cover rather than the gradient — the same two
-    // questions AppBackdrop asks.
-    val showsCover = settings.artworkBackground && playerState.hasTrack
-
     // How far round the panorama is, in px within one lap, read off where its sections are on screen —
-    // the panorama keeps its own scroll position to itself. Only the cover needs it; see CoverPan.
+    // the panorama keeps its own scroll position to itself. The backdrop's pan, the title and the
+    // section headers are all driven by it; see [coverPan].
     val density = LocalDensity.current
     var widthPx by remember { mutableIntStateOf(0) }
     val sectionPadPx = with(density) { PanoramaSectionPadding.toPx() }
@@ -140,25 +138,20 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     var sectionTopPx by remember { mutableFloatStateOf(Float.NaN) }
     var sectionRestPx by remember { mutableFloatStateOf(Float.NaN) }
 
+    val backdropPan = LocalBackdropPan.current
+    // The real palette, handed back to the sections' own content below; the panorama itself is given
+    // one whose foreground is invisible — see the note on HomeHeaders for why.
+    val realColors = MetroTheme.colors
+    val sectionTitles = sections.map { stringResource(sectionTitleOf(it)) }
+
     Box(Modifier.fillMaxSize().onSizeChanged { widthPx = it.width }) {
-        if (showsCover) {
-            // The cover, panned here rather than by the panorama, which pans a picture out and back
-            // and so turned round half way, in the middle section. See [coverPan].
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationX = -coverPan(travelled, sectionPx, sections.size) *
-                            CoverPanShare * size.width
-                    }
-            ) {
-                AppBackdrop(widen = PanoramaBackdropWiden)
-            }
-        }
         Column(Modifier.fillMaxSize()) {
+          CompositionLocalProvider(
+              LocalMetroColors provides realColors.copy(fg = Color.Transparent)
+          ) {
             MetroPanorama(
-                // The application bar below takes the gesture bar's inset, so the lists in the sections
-                // end above the bar rather than leaving the inset's height of empty room inside it too.
+                // The application bar under the page takes the gesture bar's inset, so the lists in
+                // the sections end above it rather than leaving the inset's height of room inside.
                 modifier = Modifier
                     .weight(1f)
                     .consumeWindowInsets(WindowInsets.navigationBars),
@@ -172,10 +165,13 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 // height, so everything under it sits exactly where it did.
                 title = "",
                 overline = null,
-                // The same drawing the shell puts behind every other page, so the wallpaper does not
-                // change when you leave the panorama — here it parallaxes, there it stays put. The
-                // gradient tiles, so the panorama pans it for ever; the cover is panned above instead.
-                background = if (showsCover) null else GradientLayer,
+                // More room over the title than the framework's 6dp: letters that rise above the
+                // capitals — the dot of the i in "music" — were cut off by the edge it clips at.
+                titleTopPadding = PanoramaTitleTopPadding,
+                // No background of its own: the shell's one copy shows through, and this page pans it
+                // (LocalBackdropPan). A copy drawn here turned with the page on every page transition
+                // and did not match the shell's, so the picture jumped coming back from a page.
+                background = null,
                 // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
                 // almost none of its own and each section header takes the same indent instead. That
                 // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
@@ -196,6 +192,7 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                             null
                         }
                     ) {
+                      CompositionLocalProvider(LocalMetroColors provides realColors) {
                         // The list gets the height left under the header and the section's own width.
                         val modifier = Modifier
                             .fillMaxWidth()
@@ -208,6 +205,7 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                                 if (lapPx > 0f) {
                                     travelled =
                                         (index * sectionPx - (position.x - sectionPadPx)).mod(lapPx)
+                                    backdropPan.value = coverPan(travelled, sectionPx, sections.size)
                                 }
                                 sectionTopPx = position.y
                                 if (sectionRestPx.isNaN() || position.y > sectionRestPx) {
@@ -265,18 +263,19 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                             )
                             LibrarySection.Settings -> SettingsSection(modifier, onNavigate)
                         }
+                      }
                     }
                 }
             )
-            // Searching the whole library, from the bottom of the screen where WP8 kept a page's commands.
-            // It used to be a row in "more", two swipes away from the landing section; on the bar it is
-            // one tap from every section, and it still does not compete with the section headers, whose
-            // tap opens the box that filters *that* section only.
-            HomeAppBar(
-                onSearch = { leave(Screen.Search) },
-                insetNavigationBar = !playerState.hasTrack
-            )
+          }
         }
+        HomeHeaders(
+            titles = sectionTitles,
+            sectionPx = sectionPx,
+            widthPx = widthPx,
+            travelled = { travelled },
+            sectionTop = { sectionTopPx }
+        )
         HomeTitle(
             text = stringResource(R.string.home_title),
             travelPx = HomeTitleTravel * widthPx,
@@ -291,8 +290,77 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     }
 }
 
-/** The panorama's own, parallaxing copy of the backdrop, for when the backdrop is the gradient. */
-private val GradientLayer: @Composable BoxScope.() -> Unit = { AppBackdrop() }
+/**
+ * The section headers — "artists", "albums", the next one leaning in from the right — drawn here
+ * rather than by the panorama, in the same places and the same type.
+ *
+ * The panorama's own headers sit in a band clipped to exactly the height of the text, and Selawik's
+ * descenders reach below that height, so the tail of every g, p and y was cut off along a straight
+ * line. Its headers cannot be told otherwise, and they are also the controls — a tap on the one in
+ * view opens its search box, a tap on the one leaning in goes there — so they are kept, working, and
+ * made invisible (the panorama is given a palette with a transparent foreground; the sections get
+ * the real one back), and these are drawn over them, unclipped, where they would have been.
+ *
+ * Where is worked out the way the panorama works it out: the headers are a page apart less the
+ * [HeaderPeek], indented by the section padding plus the header's own 24dp, with the ones you are
+ * not on dimmed to [AwayHeaderAlpha]; and each one's bottom is the panorama's [PanoramaHeaderGap]
+ * above the top of the sections, so they rise with the sections when the title rolls away. Read in the
+ * layer, so a swipe moves them without recomposing; and with nothing to press, a tap goes straight
+ * through to the invisible header underneath.
+ */
+@Composable
+private fun HomeHeaders(
+    titles: List<String>,
+    sectionPx: Float,
+    widthPx: Int,
+    travelled: () -> Float,
+    sectionTop: () -> Float
+) {
+    val density = LocalDensity.current
+    val colors = MetroTheme.colors
+    val count = titles.size
+    if (count == 0 || widthPx <= 0) return
+    val spacing = widthPx - with(density) { HeaderPeek.toPx() }
+    val indent = with(density) { (PanoramaSectionPadding + 24.dp).toPx() }
+    val gap = with(density) { PanoramaHeaderGap.toPx() }
+    var originY by remember { mutableFloatStateOf(0f) }
+
+    Box(Modifier.fillMaxSize().onGloballyPositioned { originY = it.positionInWindow().y }) {
+        titles.forEachIndexed { index, title ->
+            Text(
+                text = title,
+                color = colors.fg,
+                fontFamily = MetroSemilight,
+                fontSize = HeaderSize,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Visible,
+                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                modifier = Modifier
+                    .wrapContentWidth(align = Alignment.Start, unbounded = true)
+                    .graphicsLayer {
+                        val top = sectionTop()
+                        // Round the loop either way, so the section before the first is the last.
+                        val away = (index - travelled() / sectionPx + count / 2f)
+                            .mod(count.toFloat()) - count / 2f
+                        val distance = kotlin.math.abs(away)
+                        translationX = away * spacing + indent
+                        translationY = if (top.isNaN()) 0f else top - originY - gap - size.height
+                        alpha = when {
+                            top.isNaN() || distance > 2.2f -> 0f
+                            else -> 1f - distance.coerceIn(0f, 1f) * (1f - AwayHeaderAlpha)
+                        }
+                    }
+            )
+        }
+    }
+}
+
+/** The panorama's header geometry, copied so the drawn headers land on the real ones. */
+private val HeaderSize = 48.sp
+private val HeaderPeek = 96.dp
+private val PanoramaHeaderGap = 12.dp
+private const val AwayHeaderAlpha = 0.42f
 
 /**
  * The home panorama's giant title, drawn once, where the panorama would draw it and as it would draw
@@ -339,7 +407,10 @@ private fun HomeTitle(text: String, travelPx: Float, pan: () -> Float, rolledUp:
 
 /** The panorama's title size and its spacing, copied from the framework so the two agree. */
 private val HomeTitleSize = 108.sp
-private val HomeTitleTop = 6.dp
+private val HomeTitleTop = 22.dp
+
+/** Space over the panorama's title, shared by the panorama's layout and the drawn [HomeTitle]. */
+private val PanoramaTitleTopPadding = HomeTitleTop
 private val HomeTitleInkTop = 30.dp
 
 /** How far the title slides over a whole lap, as a share of the screen's width. */
@@ -347,12 +418,6 @@ private const val HomeTitleTravel = 0.3f
 
 /** The panorama's gutter, which is also the offset of a section at rest from the left edge. */
 private val PanoramaSectionPadding = 2.dp
-
-/**
- * How far the cover pans over a whole lap, as a share of the window's width — inside the 0.4 of
- * overhang it is drawn with (PanoramaBackdropWiden), so the pan never runs off its edge.
- */
-private const val CoverPanShare = 0.3f
 
 /**
  * Where the cover is in its pan, 0 to 1, for a panorama [travelled] px round a lap of [count]

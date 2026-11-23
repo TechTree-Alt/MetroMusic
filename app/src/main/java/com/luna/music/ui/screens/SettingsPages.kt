@@ -55,6 +55,7 @@ import com.luna.music.data.lyrics.lyricsFolderName
 import com.luna.music.data.store.ArtistAlbumOrder
 import com.luna.music.data.store.Hidden
 import com.luna.music.data.store.LyricsSource
+import com.luna.music.ui.components.FeatherColumn
 import com.luna.music.ui.components.SettingRow
 import com.luna.music.ui.formatAlbumCount
 import com.luna.music.ui.formatArtistCount
@@ -1153,7 +1154,9 @@ private fun lyricsSourceLabel(source: LyricsSource): Int = when (source) {
 @Composable
 internal fun SettingsPageFrame(title: String, content: @Composable () -> Unit) {
     MetroPage("SETTINGS", title) {
-        Column(
+        // The rows deal themselves onto the page one after another as it opens — the phone's own
+        // entrance for a settings page — rather than arriving as one block. See FeatherColumn.
+        FeatherColumn(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())

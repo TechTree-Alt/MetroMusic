@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -34,10 +38,9 @@ import com.luna.music.core.LocalServices
 /**
  * The one background the whole app sits on.
  *
- * Installed once by the shell through `MetroBackdrop`, and handed to the home panorama as its
- * parallaxing background layer as well — the same drawing in both places, so going from the panorama
- * into an album keeps the wallpaper it had instead of dropping to a flat colour. Only the movement
- * differs: under the panorama it pans with the finger, under a page it stays put.
+ * Installed once by the shell through `MetroBackdrop`, behind every page, so going from the panorama
+ * into an album keeps the wallpaper it had instead of dropping to a flat colour. The panorama pans it
+ * sideways as it is swiped (see [LocalBackdropPan]); every other page leaves it where it is.
  *
  * What it draws is the album that is playing, softened and washed into the theme's background so
  * the text over it stays readable. With nothing playing, no cover to show, or the
@@ -45,7 +48,7 @@ import com.luna.music.core.LocalServices
  * and a custom colour all look like themselves rather than like the dark theme with other text.
  */
 @Composable
-fun AppBackdrop(widen: Float = 1f) {
+fun AppBackdrop() {
     val services = LocalServices.current
     val settings by services.settings.settings.collectAsStateWithLifecycle()
     val playerState by services.player.state.collectAsStateWithLifecycle()
@@ -56,18 +59,56 @@ fun AppBackdrop(widen: Float = 1f) {
         size = 260.dp
     ).takeIf { settings.artworkBackground && playerState.hasTrack }
 
-    // A change of song is a change of picture, and a cut from one cover to the next across the
-    // whole screen is the loudest thing that could happen behind a list. Fading is the Metro way of
-    // replacing one surface with another.
-    Crossfade(
-        targetState = cover,
-        modifier = Modifier.fillMaxSize(),
-        animationSpec = tween(BackdropFadeMillis),
-        label = "backdrop"
+    // **One copy, for the whole app, panned by the home panorama.** The panorama used to draw a copy
+    // of its own over this one. That copy turned with the page whenever a page was opened or closed —
+    // the page transition rotates the page and everything drawn in it — and was cropped and placed
+    // differently from this one, so leaving a settings page for the panorama swapped one picture
+    // for another mid-turn, which is the jank. Now the panorama draws no background at all and
+    // instead tells this one where it is ([LocalBackdropPan]); this one never moves with a page,
+    // and every page sees the same picture in the same place, held where the panorama left it.
+    //
+    // Drawn [BackdropWiden] times the window's width from the left edge, which the window does not
+    // clip to, so a pan of up to [BackdropPanShare] of the width never uncovers anything.
+    val pan = LocalBackdropPan.current
+    BoxWithConstraints(
+        Modifier
+            .fillMaxSize()
+            .graphicsLayer { translationX = -pan.value * BackdropPanShare * size.width }
     ) {
-        if (it != null) ArtworkBackdrop(it, widen) else GradientBackdrop()
+        Box(
+            Modifier
+                .wrapContentWidth(Alignment.Start, unbounded = true)
+                .requiredWidth(maxWidth * BackdropWiden)
+                .fillMaxHeight()
+        ) {
+            // A change of song is a change of picture, and a cut from one cover to the next across
+            // the whole screen is the loudest thing that could happen behind a list. Fading is the
+            // Metro way of replacing one surface with another.
+            Crossfade(
+                targetState = cover,
+                modifier = Modifier.fillMaxSize(),
+                animationSpec = tween(BackdropFadeMillis),
+                label = "backdrop"
+            ) {
+                if (it != null) ArtworkBackdrop(it) else GradientBackdrop()
+            }
+        }
     }
 }
+
+/**
+ * Where the app's backdrop is in its sideways pan, 0 to 1. Written by the home panorama as it is
+ * swiped, read by [AppBackdrop] in its layer; held, not reset, while other pages are showing.
+ */
+class BackdropPan {
+    var value by mutableFloatStateOf(0f)
+}
+
+val LocalBackdropPan = staticCompositionLocalOf { BackdropPan() }
+
+/** How much wider than the window the backdrop is drawn, and how much of the width it pans. */
+private const val BackdropWiden = 1.4f
+private const val BackdropPanShare = 0.3f
 
 /**
  * A wide gradient with an oversized note bleeding off the edge, built from the theme's background.
@@ -114,24 +155,10 @@ private fun GradientBackdrop() {
  * designed to be read over.
  */
 @Composable
-private fun ArtworkBackdrop(cover: Bitmap, widen: Float = 1f) {
+private fun ArtworkBackdrop(cover: Bitmap) {
     val colors = MetroTheme.colors
     val light = colors.bg.luminance() > 0.5f
-    // [widen] is for the home panorama, which pans its backdrop sideways as the sections go by and
-    // means to pan a layer 1.4 times the window's width. The framework asks for that width inside
-    // a box only as wide as the window, which clamps it back to the window — so its pan uncovered a
-    // strip at the right edge, and the shell's own copy of the cover showed there, cropped
-    // differently: the hard vertical line across the picture. Drawing the cover wider than the box
-    // it is given, from the box's left edge, gives the pan the overhang it was meant to have, and
-    // the box does not clip it.
-    BoxWithConstraints(Modifier.fillMaxSize()) {
-    Box(
-        Modifier
-            .wrapContentWidth(Alignment.Start, unbounded = true)
-            .requiredWidth(maxWidth * widen)
-            .fillMaxHeight()
-            .background(colors.bg)
-    ) {
+    Box(Modifier.fillMaxSize().background(colors.bg)) {
         Image(
             bitmap = cover.asImageBitmap(),
             contentDescription = null,
@@ -150,14 +177,7 @@ private fun ArtworkBackdrop(cover: Bitmap, widen: Float = 1f) {
             )
         )
     }
-    }
 }
-
-/**
- * How much wider than the window the cover is drawn under the home panorama: the framework's own
- * 1.4, which covers its largest pan (18% of the window) with room to spare.
- */
-const val PanoramaBackdropWiden = 1.4f
 
 /** WP8 cyan and magenta, the two tints the gradient mixes into the background. */
 private val TintCool = Color(0xFF1BA1E2)

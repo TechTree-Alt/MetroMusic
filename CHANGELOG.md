@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+**Nothing cut off at the top of the home screen.** The dot of the i in "music" and the tails of the g,
+p and y in the section names were clipped; the title has more room above it and the section names are
+no longer cut at the baseline.
+
+**The app bar is at the very bottom.** On the home screen the search bar sits under the now-playing
+strip. The player covers it as it rises and it comes back with the strip as the player closes; it
+folds away when another page opens.
+
+**Settings pages deal their rows in.** Opening a settings page, its rows swing in one after another
+from the left edge, the phone's own entrance, instead of appearing all at once.
+
+**No jump in the background coming back to the home screen.** The whole app shares one backdrop now;
+the home panorama pans it rather than drawing a copy of its own that turned with every page transition.
+
 **One title, with parallax.** "music" is drawn once across the top of the home panorama and slides a
 little way left as you go through the sections, slower than they do, then slides home on the wrap —
 the phone's panorama parallax — instead of repeating along the screen.

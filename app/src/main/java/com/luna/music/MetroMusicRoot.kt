@@ -22,6 +22,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.luna.music.ui.components.LocalBackdropPan
+import com.luna.music.ui.components.BackdropPan
+import com.luna.music.ui.components.HomeAppBar
+import com.metrocompose.MetroBarRiseMillis
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -134,9 +149,27 @@ fun MetroMusicRoot(
     // The player's position between the strip and the whole screen, which a finger can hold anywhere.
     // `playerOpen` stays the app's truth — a tap, Back, the widget all set it and the page follows —
     // and a drag reports back through `onOpenChange`, so the two never disagree about what is open.
+    // The home screen's application bar sits *under* the strip, at the very bottom, where WP8 kept a
+    // page's commands. So on the home screen the strip is that much higher, and the player has to rise
+    // out of the strip's real top edge: the bar's height (its content, not the gesture bar under it,
+    // which the rising page adds by itself) goes into the height the page rests at.
+    val onHome = nav.current == Screen.Collection
+    val navigationInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val navigationInsetPx = with(density) { navigationInset.roundToPx() }
+    var appBarPx by remember { mutableIntStateOf(0) }
+    val appBarHeight = if (onHome) with(density) { appBarPx.toDp() } else 0.dp
+    // The strip stops answering for the gesture bar while the app bar is under it — the bar does — and
+    // takes it back as the bar leaves, at the same pace, so the strip does not jump.
+    val stripInsetTaken by animateDpAsState(
+        targetValue = if (onHome) navigationInset else 0.dp,
+        animationSpec = tween(MetroBarRiseMillis),
+        label = "strip inset"
+    )
+    val backdropPan = remember { BackdropPan() }
+
     val rising = rememberMetroRisingPage(
         open = playerOpen,
-        fromHeight = MiniPlayerHeight,
+        fromHeight = MiniPlayerHeight + appBarHeight,
         windowHeight = if (windowHeightPx > 0) with(density) { windowHeightPx.toDp() } else Dp.Unspecified,
         onOpenChange = { playerOpen = it }
     )
@@ -239,6 +272,7 @@ fun MetroMusicRoot(
     // One backdrop for the whole app: pages inside a MetroBackdrop leave their own background off, so
     // the gradient (or the cover, if settings say so) stays put while pages come and go over it
     // instead of the panorama having a wallpaper and every detail page dropping to flat black.
+    CompositionLocalProvider(LocalBackdropPan provides backdropPan) {
     MetroBackdrop(backdrop = { AppBackdrop() }) {
         Box(Modifier.fillMaxSize().onSizeChanged { windowHeightPx = it.height }) {
         // No inset here on purpose: every page fills the window and the framework's own
@@ -285,9 +319,39 @@ fun MetroMusicRoot(
             // it the player's full-bleed artwork ends its drop by turning into a black rectangle.
             MetroBottomBar(
                 visible = playerState.hasTrack,
+                modifier = Modifier.consumeWindowInsets(WindowInsets(bottom = stripInsetTaken)),
                 background = { MiniPlayerBackdrop(backdropArt, backdropHeight) }
             ) {
                 MiniPlayer(state = playerState, rising = rising, onOpen = { playerOpen = true })
+            }
+
+            // The home screen's application bar, under the strip. It belongs to the home screen
+            // alone, so it folds away as a page is opened over it and unfolds on the way back.
+            //
+            // The player rises out of the strip above it and covers it on the way up; on the way back
+            // down the bar comes back with the strip, fading in as it rises into place over the last
+            // stretch of the drop — the same hand-off as the strip's (see StripHandOff).
+            //
+            // Searching the whole library is its one command, one tap from every section, and it
+            // does not compete with the section headers, whose tap filters that section only.
+            AnimatedVisibility(
+                visible = onHome,
+                enter = expandVertically(tween(MetroBarRiseMillis), expandFrom = Alignment.Top) +
+                    fadeIn(tween(MetroBarRiseMillis)),
+                exit = shrinkVertically(tween(MetroBarRiseMillis), shrinkTowards = Alignment.Top) +
+                    fadeOut(tween(MetroBarRiseMillis / 2))
+            ) {
+                HomeAppBar(
+                    onSearch = { nav.push(Screen.Search) },
+                    insetNavigationBar = true,
+                    modifier = Modifier
+                        .onSizeChanged { appBarPx = (it.height - navigationInsetPx).coerceAtLeast(0) }
+                        .graphicsLayer {
+                            val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
+                            alpha = 1f - covered
+                            translationY = covered * AppBarRise.toPx()
+                        }
+                )
             }
         }
 
@@ -328,6 +392,7 @@ fun MetroMusicRoot(
                 QueueScreen(rising = queueRising, onClose = { queueOpen = false })
             }
         }
+    }
     }
 
     // The volume keys are consumed by the activity so Android's own panel never appears; this is
@@ -467,6 +532,9 @@ fun MetroMusicRoot(
         )
     }
 }
+
+/** How far the app bar rises into place as the player hands back to it, as the strip does. */
+private val AppBarRise = 16.dp
 
 /** How much of the player's travel, at the strip end, is a cross-fade between the page and the strip. */
 const val StripHandOff = 0.1f
