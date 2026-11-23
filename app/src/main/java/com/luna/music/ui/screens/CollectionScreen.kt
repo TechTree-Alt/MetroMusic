@@ -34,6 +34,7 @@ import com.luna.music.core.LocalServices
 import com.luna.music.data.model.Album
 import com.luna.music.data.store.LibrarySection
 import com.luna.music.ui.components.AppBackdrop
+import com.luna.music.ui.components.PanoramaBackdropWiden
 import com.luna.music.ui.components.HomeAppBar
 import com.luna.music.ui.components.PlaylistPickerHost
 import com.luna.music.ui.components.TrackActionsHost
@@ -123,12 +124,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 // The same drawing the shell puts behind every other page, so the wallpaper does not
                 // change when you leave the panorama — here it parallaxes, there it stays put.
                 //
-                // Except the album cover, which the panorama is not given at all: it cannot tile a
-                // photograph, so it pans one wider copy of it instead, cropped differently from the
-                // shell's copy underneath — and where the two meet there was a hard vertical edge
-                // across the picture. With nothing of its own the panorama shows the shell's one
-                // still copy straight through, which has no edge anywhere.
-                background = if (showsCover) null else GradientLayer,
+                // The cover cannot be tiled like the gradient, so the panorama pans one copy of it
+                // inside an overhang instead; the cover is drawn wide enough to fill that overhang
+                // (see AppBackdrop's `widen`), so the pan never uncovers the shell's copy beneath.
+                background = if (showsCover) CoverLayer else GradientLayer,
                 backgroundTiles = !showsCover,
                 // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
                 // almost none of its own and each section header takes the same indent instead. That
@@ -222,6 +221,9 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
 
 /** The panorama's own, parallaxing copy of the backdrop, for when the backdrop is the gradient. */
 private val GradientLayer: @Composable BoxScope.() -> Unit = { AppBackdrop() }
+
+/** The same, for the cover: drawn wider than the window, for the panorama to pan inside. */
+private val CoverLayer: @Composable BoxScope.() -> Unit = { AppBackdrop(widen = PanoramaBackdropWiden) }
 
 /** The sections whose header opens a search box: the ones that are lists of named things. */
 private val Searchable = setOf(

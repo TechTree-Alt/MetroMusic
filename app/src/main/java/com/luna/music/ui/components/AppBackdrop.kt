@@ -6,6 +6,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -43,7 +47,7 @@ import com.luna.music.core.LocalServices
  * and a custom colour all look like themselves rather than like the dark theme with other text.
  */
 @Composable
-fun AppBackdrop() {
+fun AppBackdrop(widen: Float = 1f) {
     val services = LocalServices.current
     val settings by services.settings.settings.collectAsStateWithLifecycle()
     val playerState by services.player.state.collectAsStateWithLifecycle()
@@ -63,7 +67,7 @@ fun AppBackdrop() {
         animationSpec = tween(BackdropFadeMillis),
         label = "backdrop"
     ) {
-        if (it != null) ArtworkBackdrop(it) else GradientBackdrop()
+        if (it != null) ArtworkBackdrop(it, widen) else GradientBackdrop()
     }
 }
 
@@ -114,10 +118,24 @@ private fun GradientBackdrop() {
  * designed to be read over.
  */
 @Composable
-private fun ArtworkBackdrop(cover: Bitmap) {
+private fun ArtworkBackdrop(cover: Bitmap, widen: Float = 1f) {
     val colors = MetroTheme.colors
     val light = colors.bg.luminance() > 0.5f
-    Box(Modifier.fillMaxSize().background(colors.bg)) {
+    // [widen] is for the home panorama, which pans its backdrop sideways as the sections go by and
+    // means to pan a layer 1.4 times the window's width. The framework asks for that width inside
+    // a box only as wide as the window, which clamps it back to the window — so its pan uncovered a
+    // strip at the right edge, and the shell's own copy of the cover showed there, cropped
+    // differently: the hard vertical line across the picture. Drawing the cover wider than the box
+    // it is given, from the box's left edge, gives the pan the overhang it was meant to have, and
+    // the box does not clip it.
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+    Box(
+        Modifier
+            .wrapContentWidth(Alignment.Start, unbounded = true)
+            .requiredWidth(maxWidth * widen)
+            .fillMaxHeight()
+            .background(colors.bg)
+    ) {
         Image(
             bitmap = cover.asImageBitmap(),
             contentDescription = null,
@@ -137,7 +155,14 @@ private fun ArtworkBackdrop(cover: Bitmap) {
             )
         )
     }
+    }
 }
+
+/**
+ * How much wider than the window the cover is drawn under the home panorama: the framework's own
+ * 1.4, which covers its largest pan (18% of the window) with room to spare.
+ */
+const val PanoramaBackdropWiden = 1.4f
 
 /** WP8 cyan and magenta, the two tints the gradient mixes into the background. */
 private val TintCool = Color(0xFF1BA1E2)

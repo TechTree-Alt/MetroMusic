@@ -14,8 +14,10 @@ player. Any downward flick now does. The caret under the transport is gone.
 **The strip is there as the player lands.** The last part of the player's drop cross-fades into the
 strip, whose contents rise into place, instead of the strip appearing after the page had settled.
 
-**No seam in the album-art background.** The home panorama no longer pans a second copy of the cover
-over the background; the one copy behind every page shows through unbroken.
+**No seam in the album-art background.** The cover behind the home panorama still drifts sideways
+as the sections go by, and no longer shows a hard vertical edge: the panning copy was drawn only as
+wide as the screen, so the pan uncovered a strip of the still copy behind it. It is drawn wide enough
+to pan inside now.
 
 **Albums as a grid of covers.** Settings → interface → *albums as a grid of covers* shows the albums
 section as two columns of large square covers. The group headings, the alphabet zoom-out, the
