@@ -37,7 +37,6 @@ import com.luna.music.data.model.Album
 import com.luna.music.data.model.Library
 import com.luna.music.data.model.Track
 import com.luna.music.ui.components.AlbumGridTile
-import com.luna.music.ui.components.StickyLongList
 import com.luna.music.ui.components.CollectionRowWithActions
 import com.luna.music.ui.components.PlaylistPicker
 import com.luna.music.ui.components.rememberCollectionActions
@@ -125,7 +124,7 @@ fun ArtistsSection(
     val sorts = rememberArtistSorts(library, stats.playCounts)
 
     SearchableSection(modifier, search, onSearchChange) { listModifier ->
-    StickyLongList(
+    MetroLongList(
         items = shown,
         key = { it.id },
         sort = sorts[settings.artistSort.ordinal],
@@ -196,7 +195,7 @@ fun AlbumsSection(
     }
 
     SearchableSection(modifier, search, onSearchChange) { listModifier ->
-    StickyLongList(
+    MetroLongList(
         items = shown,
         key = { it.id },
         sort = sorts[settings.albumSort.ordinal],
@@ -300,7 +299,7 @@ private fun AlbumGrid(
         }
     }
 
-    StickyLongList(
+    MetroLongList(
         items = rows,
         key = { "row-${it.left.id}" },
         sort = rowSorts[selected],
@@ -389,7 +388,7 @@ fun SongsSection(
     val sort = sorts[settings.songSort.ordinal]
 
     SearchableSection(modifier, search, onSearchChange) { listModifier ->
-        StickyLongList(
+        MetroLongList(
             items = shown,
             key = { it.id },
             sort = sort,

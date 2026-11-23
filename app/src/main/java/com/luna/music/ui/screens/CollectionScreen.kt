@@ -202,9 +202,7 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 sectionPadding = PanoramaSectionPadding,
                 // Settings → interface. The title is worth a row and a half of library, and whether that
                 // is a good trade is the user's call.
-                // Never on the home screen: the title and the section names stay where they are while
-                // the lists scroll under them. The setting still rolls an album page's cover away.
-                collapsingTitle = false,
+                collapsingTitle = settings.collapseTitle,
                 sections = sections.mapIndexed { index, section ->
                     MetroPanoramaSection(
                         title = stringResource(sectionTitleOf(section)),
