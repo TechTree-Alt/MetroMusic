@@ -1,8 +1,10 @@
 package com.metromusic.data.store
 
 import android.content.Context
+import androidx.core.graphics.ColorUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -237,10 +239,18 @@ data class Settings(
     // ---- appearance ----
     /** Take dark/light from the device instead of from [dark]. */
     val followSystemTheme: Boolean = false,
-    /** Overrides the theme's own background. Null means black or white, as the theme says. */
+    /**
+     * Overrides the theme's own background. Null means black or white, as the theme says. Set aside
+     * while [followSystemTheme] is on: a fixed colour cannot follow the device from dark to light.
+     */
     val backgroundArgb: Int? = null,
-    /** Show the playing album's cover behind the home panorama. */
-    val artworkBackground: Boolean = false,
+    /**
+     * Show the playing album's cover, tinted, behind the app instead of the plain gradient. On by
+     * default, which is why it is stored under a new key: installs that wrote the old `false` default
+     * under "artworkBackground" get the cover once, and can still turn it off.
+     */
+    @SerialName("artworkBackdrop")
+    val artworkBackground: Boolean = true,
     /** Show a cover in the now-playing strip. */
     val stripArtwork: Boolean = true,
     /**
@@ -485,11 +495,33 @@ class SettingsStore(context: Context, scope: CoroutineScope) {
 
     fun setAccent(argb: Int) = store.update { it.copy(accentArgb = argb) }
 
-    fun setDark(dark: Boolean) = store.update { it.copy(dark = dark) }
+    /**
+     * Dark or light, chosen by hand. It goes back to the theme's own black or white: a custom colour
+     * left in place would decide the palette by its own lightness, and the switch would appear to do
+     * nothing — which is what "the background does not change" was.
+     */
+    fun setDark(dark: Boolean) = store.update {
+        it.copy(dark = dark, backgroundArgb = null, followSystemTheme = false)
+    }
 
     fun setFollowSystemTheme(follow: Boolean) = store.update { it.copy(followSystemTheme = follow) }
 
-    fun setBackground(argb: Int?) = store.update { it.copy(backgroundArgb = argb) }
+    /**
+     * A background colour, or null for the theme's own. Picking a colour is choosing the look by
+     * hand, so it stops following the device, and [Settings.dark] is set to match the colour's
+     * lightness so the dark/light row says what is actually on screen.
+     */
+    fun setBackground(argb: Int?) = store.update {
+        if (argb == null) {
+            it.copy(backgroundArgb = null)
+        } else {
+            it.copy(
+                backgroundArgb = argb,
+                followSystemTheme = false,
+                dark = ColorUtils.calculateLuminance(argb) < 0.5
+            )
+        }
+    }
 
     fun setArtworkBackground(on: Boolean) = store.update { it.copy(artworkBackground = on) }
 

@@ -97,7 +97,11 @@ class MainActivity : ComponentActivity() {
                 MetroTheme(
                     accent = Color(settings.accentArgb),
                     dark = dark,
-                    background = settings.backgroundArgb?.let(::Color)
+                    // Following the device means the theme's own black or white: a fixed colour
+                    // would hold the palette on one side whichever way the device flips.
+                    background = settings.backgroundArgb
+                        ?.takeUnless { settings.followSystemTheme }
+                        ?.let(::Color)
                 ) {
                     PermissionGate {
                         MetroMusicRoot(

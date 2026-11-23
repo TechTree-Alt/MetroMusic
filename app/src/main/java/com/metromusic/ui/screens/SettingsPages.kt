@@ -47,7 +47,6 @@ import com.metrocompose.MetroSlider
 import com.metrocompose.MetroSubheader
 import com.metrocompose.MetroTextBox
 import com.metrocompose.MetroTheme
-import com.metrocompose.SettingRow
 import com.metromusic.R
 import com.metromusic.core.LocalServices
 import com.metromusic.data.playlist.playlistFolderName
@@ -56,6 +55,7 @@ import com.metromusic.data.lyrics.lyricsFolderName
 import com.metromusic.data.store.ArtistAlbumOrder
 import com.metromusic.data.store.Hidden
 import com.metromusic.data.store.LyricsSource
+import com.metromusic.ui.components.SettingRow
 import com.metromusic.ui.formatAlbumCount
 import com.metromusic.ui.formatArtistCount
 import com.metromusic.ui.formatDuration
@@ -280,7 +280,8 @@ private fun ThemeSettings() {
             BackgroundChoices.forEach { (_, argb) ->
                 Swatch(
                     color = Color(argb),
-                    selected = settings.backgroundArgb == argb,
+                    // Not while following the device, which sets a custom colour aside.
+                    selected = settings.backgroundArgb == argb && !settings.followSystemTheme,
                     onClick = { services.settings.setBackground(argb) }
                 )
             }
@@ -288,7 +289,7 @@ private fun ThemeSettings() {
         ListRow(
             primary = stringResource(R.string.theme_background_default),
             secondary = stringResource(
-                if (settings.backgroundArgb == null) {
+                if (settings.backgroundArgb == null || settings.followSystemTheme) {
                     R.string.theme_background_default_in_use
                 } else {
                     R.string.theme_background_default_hint

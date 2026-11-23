@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+**The playing album is the background.** Behind the home panorama and every page, the cover of
+what is playing now, softened, tinted with the accent colour and washed into the theme so the text
+stays readable. It fades from one cover to the next as the songs change. With nothing playing it is
+the gradient, and Settings → theme can turn the cover off.
+
+**Light mode is light.** Switching to the light theme, or following the device into it, changed the
+text but left the background dark: the gradient behind every page was drawn in fixed dark colours.
+It is made from the theme's background now, so white is white and a custom colour shows as itself.
+Choosing dark or light by hand also clears a custom background colour that would otherwise have kept
+the screen as it was, and following the device sets a custom colour aside rather than holding the
+app on one side of the switch.
+
+**The toggle switch is the phone's.** An outlined track, an accent fill set in from it, and a solid
+thumb taller than the track with a gap either side, instead of a small block floating in a box. The
+state under each setting is written in the app's language.
+
 **한국어.** The whole app is translated into Korean, and the indexes speak it too: Korean names are
 filed under their initial consonant, ㄱ to ㅎ, the way a Korean phone book files them, instead of
 all landing under `#`. Tense doubles go with their plain consonant (까치 beside 가수). A phone set to

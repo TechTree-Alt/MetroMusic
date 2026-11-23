@@ -144,7 +144,7 @@
     <string name="theme_dark">dark</string>
     <string name="theme_light">light</string>
     <string name="theme_tap_to_switch">tap to switch</string>
-    <string name="theme_artwork_background">album art behind the panorama</string>
+    <string name="theme_artwork_background">now playing album art as the background</string>
     <string name="theme_explainer">the accent colours every tile, header and toggle in the app;
         the background is what the panorama and every page sit on.</string>
 
@@ -370,6 +370,9 @@
     <!-- No result at all; the query is repeated back so it is clear what was asked. -->
     <string name="search_nothing">nothing here matches “%1$s”.</string>
     <string name="press_back_again">press back again to close</string>
+    <!-- The state written under a switch's title on a settings row. -->
+    <string name="switch_on">on</string>
+    <string name="switch_off">off</string>
     <string name="action_cancel">cancel</string>
 
     <!-- ==== how a section is arranged: the picker a group header opens on a hold ==== -->

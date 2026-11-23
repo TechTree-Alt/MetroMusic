@@ -119,9 +119,9 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 // change when you leave the panorama — here it parallaxes, there it stays put.
                 background = { AppBackdrop() },
                 // The gradient is drawn to wrap and can be tiled; an album cover cannot — two copies of
-                // it meet in a hard vertical line through the picture. Which one the backdrop is drawing
-                // is a setting, so this follows the same setting.
-                backgroundTiles = !settings.artworkBackground,
+                // it meet in a hard vertical line through the picture. The cover is drawn only while
+                // something plays and the setting is on, so this asks the same two questions.
+                backgroundTiles = !(settings.artworkBackground && playerState.hasTrack),
                 // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
                 // almost none of its own and each section header takes the same indent instead. That
                 // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
