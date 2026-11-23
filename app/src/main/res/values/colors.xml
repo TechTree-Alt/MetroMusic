@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- WP8 cyan, the framework's default accent: the launcher icon's tile. -->
-    <color name="ic_launcher_background">#1BA1E2</color>
-    <!-- The deeper half of the icon's diagonal. Same hue, a little down in value — enough to see,
-         not enough to read as a second colour. -->
-    <color name="ic_launcher_background_shade">#1696D4</color>
+    <!-- The launcher icon's tile: a flat mid grey, against which the white headphones carry the
+         whole icon. Change it to an accent (#1BA1E2 is WP8 cyan) for a coloured tile. -->
+    <color name="ic_launcher_background">#5F5F5F</color>
 </resources>

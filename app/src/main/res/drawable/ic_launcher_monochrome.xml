@@ -1,31 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The themed-icon layer (Android 13+): the glyph alone, for the launcher to tint with the colours
-     of the wallpaper. The very same paths as ic_launcher_foreground — a single flat white mark is
-     already what a monochrome layer asks for, which is one more reason the icon is drawn that way.
-     Keep the two identical. -->
+<!-- The themed-icon layer (Android 13+): the headphones alone, for the launcher to tint. The very
+     same paths as ic_launcher_foreground — keep the two identical. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- first note's head -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M37.20,64.00 L49.20,64.00 L49.20,76.00 L37.20,76.00 Z" />
-    <!-- second note's head -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M58.80,59.20 L70.80,59.20 L70.80,71.20 L58.80,71.20 Z" />
-    <!-- first stem -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M45.60,36.80 L49.20,36.80 L49.20,64.00 L45.60,64.00 Z" />
-    <!-- second stem -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M67.20,32.00 L70.80,32.00 L70.80,59.20 L67.20,59.20 Z" />
-    <!-- beam -->
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M45.60,36.80 L70.80,32.00 L70.80,38.80 L45.60,43.60 Z" />
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.9"
+        android:scaleY="0.9">
+        <group android:translateY="1.0">
+        <!-- headband -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M31,52 A23,23 0 0 1 77,52 L77,63 L72.5,63 L72.5,52 A18.5,18.5 0 0 0 35.5,52 L35.5,63 L31,63 Z" />
+        <!-- cushion -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M39.75,43.10 A16.8,16.8 0 0 1 68.25,43.10 L65.53,44.79 A13.6,13.6 0 0 0 42.47,44.79 Z" />
+        <!-- left cup -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M37,58 L33,58 A4,4 0 0 0 29,62 L29,73 A4,4 0 0 0 33,77 L37,77 Z" />
+        <!-- left pad -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M38.6,59.5 L40.6,59.5 A1,1 0 0 1 41.6,60.5 L41.6,74.5 A1,1 0 0 1 40.6,75.5 L38.6,75.5 Z" />
+        <!-- right cup -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M71,58 L75,58 A4,4 0 0 1 79,62 L79,73 A4,4 0 0 1 75,77 L71,77 Z" />
+        <!-- right pad -->
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M69.4,59.5 L67.4,59.5 A1,1 0 0 0 66.4,60.5 L66.4,74.5 A1,1 0 0 0 67.4,75.5 L69.4,75.5 Z" />
+        </group>
+    </group>
 </vector>
