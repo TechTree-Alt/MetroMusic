@@ -22,6 +22,12 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same branch or pull request makes the build still running for the older one
+# pointless, so it is cancelled rather than left to finish. Tags are never cancelled: each is a release.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,12 +45,25 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # Caches the Gradle distribution, the dependencies and Gradle's build cache (on in
+      # gradle.properties), so an unchanged library is not downloaded again and an unchanged step is
+      # not run again. The action only *saves* that cache from the default branch unless told
+      # otherwise, so every build of any other branch started from nothing — a minute of downloads
+      # before the first task. Pushes save it now; a pull request still only reads, so a fork's
+      # build cannot write into what later builds trust.
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
 
       # compileSdk 36 is newer than what the runner image ships, and the build fails at configuration
       # time without it rather than downloading it itself.
+      # Skipped when the runner image already has it.
       - name: Install the compile SDK platform
         run: |
+          if [ -d "$ANDROID_HOME/platforms/android-36" ]; then
+            echo "android-36 is already installed."
+            exit 0
+          fi
           sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$sdkmanager" --licenses > /dev/null 2>&1 || true
           "$sdkmanager" "platforms;android-36"
@@ -94,8 +113,17 @@ jobs:
 
       # The minified variant is the one worth building: R8 is on for release, and the serialization
       # rules in proguard-rules.pro are the part that a debug build cannot check.
+      #
+      # The App Bundle is only built for a tag: nothing installs an .aab, and it is wanted only as a
+      # release attachment. The heap is raised for CI alone: the runner has 16 GB, and R8 and the
+      # Kotlin compiler share the 2 GB that gradle.properties sizes for a laptop.
       - name: Assemble
-        run: ./gradlew --no-daemon :app:assembleRelease :app:bundleRelease
+        env:
+          TASKS: ${{ startsWith(github.ref, 'refs/tags/v') && ':app:assembleRelease :app:bundleRelease' || ':app:assembleRelease' }}
+        run: |
+          ./gradlew --no-daemon \
+            "-Dorg.gradle.jvmargs=-Xmx6g -XX:+UseParallelGC -Dfile.encoding=UTF-8" \
+            $TASKS
 
       - name: Version name
         id: version
@@ -162,8 +190,10 @@ jobs:
           mkdir -p out
           cp app/build/outputs/apk/release/app-release.apk \
              "out/MetroMusic-${{ steps.version.outputs.name }}.apk"
-          cp app/build/outputs/bundle/release/app-release.aab \
-             "out/MetroMusic-${{ steps.version.outputs.name }}.aab"
+          if [ -f app/build/outputs/bundle/release/app-release.aab ]; then
+            cp app/build/outputs/bundle/release/app-release.aab \
+               "out/MetroMusic-${{ steps.version.outputs.name }}.aab"
+          fi
           ls -l out
 
       - uses: actions/upload-artifact@v4

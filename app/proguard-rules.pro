@@ -2,13 +2,13 @@
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.**
 
--keepclassmembers class com.metromusic.data.** {
+-keepclassmembers class com.luna.music.data.** {
     *** Companion;
 }
--keepclasseswithmembers class com.metromusic.data.** {
+-keepclasseswithmembers class com.luna.music.data.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
--keep,includedescriptorclasses class com.metromusic.data.**$$serializer { *; }
+-keep,includedescriptorclasses class com.luna.music.data.**$$serializer { *; }
 
 # jaudiotagger does its ID3 work through two pieces of reflection and R8 defeats both, which is why
 # editing an album's tags worked in every debug build and did nothing but report errors on a real

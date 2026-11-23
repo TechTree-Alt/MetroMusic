@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+**The player is easier to push away.** A downward push collapses the player even when the thumb's
+arc starts it off diagonally; it used to be read as a sideways swipe and change track or spring
+back. Mostly-downward drags anywhere on the player now take it down with the finger.
+
+**New package name: `com.luna.music`.** Android treats this as a different app: it installs beside
+an older MetroMusic rather than updating it, and starts with fresh settings, playlists' state and
+play counts. The playlist files themselves are ordinary `.m3u` files and are found again.
+
 **The playing album is the background.** Behind the home panorama and every page, the cover of
 what is playing now, softened, tinted with the accent colour and washed into the theme so the text
 stays readable. It fades from one cover to the next as the songs change. With nothing playing it is

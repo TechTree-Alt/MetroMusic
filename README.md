@@ -13,7 +13,7 @@ switchable off.
 
 `minSdk 26` · `compileSdk 36` · Kotlin and Compose · GPLv3
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="70">](https://f-droid.org/packages/com.metromusic/)
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="70">](https://f-droid.org/packages/com.luna.music/)
 
 Also on the [releases page](https://github.com/Diffechento/MetroMusic/releases/latest), as an APK — but
 the two are signed with different keys (F-Droid builds and signs their own from this source), so moving

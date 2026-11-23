@@ -53,11 +53,11 @@ fun localProperty(name: String): String =
         ?: lastFmProperties.getProperty(name).orEmpty()
 
 android {
-    namespace = "com.metromusic"
+    namespace = "com.luna.music"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.metromusic"
+        applicationId = "com.luna.music"
         minSdk = 26
         targetSdk = 36
         versionCode = 9
@@ -112,6 +112,13 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    // No lint pass inside a release build. `assembleRelease` otherwise runs lint's "vital" checks
+    // first, and on CI that was two of the five minutes of every build — longer than compiling the
+    // app and shrinking it put together. Lint is still there to run by hand (`./gradlew lint`); it
+    // just no longer stands between a commit and its APK, here or on F-Droid's builder.
+    lint {
+        checkReleaseBuilds = false
     }
 }
 
