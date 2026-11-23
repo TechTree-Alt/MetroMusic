@@ -3,6 +3,7 @@ package com.luna.music.ui.screens
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -102,6 +103,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
         }
     }
 
+    // Whether the backdrop is the playing album's cover rather than the gradient — the same two
+    // questions AppBackdrop asks.
+    val showsCover = settings.artworkBackground && playerState.hasTrack
+
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             MetroPanorama(
@@ -117,11 +122,14 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 overline = null,
                 // The same drawing the shell puts behind every other page, so the wallpaper does not
                 // change when you leave the panorama — here it parallaxes, there it stays put.
-                background = { AppBackdrop() },
-                // The gradient is drawn to wrap and can be tiled; an album cover cannot — two copies of
-                // it meet in a hard vertical line through the picture. The cover is drawn only while
-                // something plays and the setting is on, so this asks the same two questions.
-                backgroundTiles = !(settings.artworkBackground && playerState.hasTrack),
+                //
+                // Except the album cover, which the panorama is not given at all: it cannot tile a
+                // photograph, so it pans one wider copy of it instead, cropped differently from the
+                // shell's copy underneath — and where the two meet there was a hard vertical edge
+                // across the picture. With nothing of its own the panorama shows the shell's one
+                // still copy straight through, which has no edge anywhere.
+                background = if (showsCover) null else GradientLayer,
+                backgroundTiles = !showsCover,
                 // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
                 // almost none of its own and each section header takes the same indent instead. That
                 // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
@@ -211,6 +219,9 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
         PlaylistPickerHost(picker)
     }
 }
+
+/** The panorama's own, parallaxing copy of the backdrop, for when the backdrop is the gradient. */
+private val GradientLayer: @Composable BoxScope.() -> Unit = { AppBackdrop() }
 
 /** The sections whose header opens a search box: the ones that are lists of named things. */
 private val Searchable = setOf(

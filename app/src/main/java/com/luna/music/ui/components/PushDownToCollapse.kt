@@ -36,6 +36,10 @@ import kotlin.math.abs
  *  - after [SlopShare] of the touch slop rather than all of it;
  *  - anywhere within about 63 degrees of straight down, rather than within 45.
  *
+ * A flick is enough. Letting go with any real downward speed puts the page away however little it has
+ * travelled, which only works because the speed is the finger's and not the page's — see the note
+ * in the detector.
+ *
  * It must sit *inside* `metroRiseDrag` in the modifier chain: pointer events reach inner modifiers
  * first, so a drag claimed here is already consumed when the outer detector looks, and it stands
  * aside. Children still come first of all — the seek bar and the lyrics list keep their drags.
@@ -57,8 +61,14 @@ fun Modifier.pushDownToCollapse(
         .pointerInput(state) {
             awaitEachGesture {
                 val first = awaitFirstDown(requireUnconsumed = false)
+                // Speed is measured from where the finger has *travelled*, not from where it is on the
+                // page. The page moves down under the finger as it is dragged, so the finger's
+                // position on the page hardly changes during a drag — and a speed worked out from
+                // that came out near zero, which is why a downward flick did not close the player and
+                // only a long, slow drag did. The sum of the deltas is the finger's own movement.
                 val tracker = VelocityTracker()
-                tracker.addPosition(first.uptimeMillis, first.position)
+                var fingerY = 0f
+                tracker.addPosition(first.uptimeMillis, Offset(0f, fingerY))
                 var travelX = 0f
                 var travelY = 0f
                 var claimed = false
@@ -70,8 +80,9 @@ fun Modifier.pushDownToCollapse(
                     // Something under the finger took it — the seek bar, the lyrics list.
                     if (!claimed && change.isConsumed) return@awaitEachGesture
                     if (!change.pressed) break
-                    tracker.addPosition(change.uptimeMillis, change.position)
                     val delta = change.positionChange()
+                    fingerY += delta.y
+                    tracker.addPosition(change.uptimeMillis, Offset(0f, fingerY))
 
                     if (!claimed) {
                         travelX += delta.x

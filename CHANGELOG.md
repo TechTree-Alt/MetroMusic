@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+**A flick puts the player away.** The swipe down measured the finger's speed against the page, which
+moves down with the finger, so a quick flick read as no speed at all and only a long drag closed the
+player. Any downward flick now does. The caret under the transport is gone.
+
+**The strip is there as the player lands.** The last part of the player's drop cross-fades into the
+strip, whose contents rise into place, instead of the strip appearing after the page had settled.
+
+**No seam in the album-art background.** The home panorama no longer pans a second copy of the cover
+over the background; the one copy behind every page shows through unbroken.
+
 **Albums as a grid of covers.** Settings → interface → *albums as a grid of covers* shows the albums
 section as two columns of large square covers. The group headings, the alphabet zoom-out, the
 hold-to-sort menu and the edge scrub all work as they do in the list. An album with no cover is a

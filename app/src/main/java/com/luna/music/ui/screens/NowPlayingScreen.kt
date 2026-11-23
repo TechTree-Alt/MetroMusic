@@ -58,7 +58,6 @@ import androidx.media3.common.Player
 import com.metrocompose.MetroCrossfade
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroIcon
-import com.metrocompose.MetroLineIcon
 import com.metrocompose.MetroLight
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroSlideInEasing
@@ -190,16 +189,14 @@ private const val TextStagger = 0
  * drag here can mean go through one detector so a diagonal thumb cannot start two of them.
  *
  * The third is [queue]: pulling the player up again, once it has nowhere further to rise, brings the
- * queue out over it. The same movement that opened the player, one page further on — and the caret in
- * the space under the transport says so and does it on a tap, because a gesture with no mark on the
- * screen anywhere is a feature only its author knows about.
+ * queue out over it. The same movement that opened the player, one page further on. There is no mark
+ * for it on the page any more: the caret under the transport was taken out at the owner's request.
  */
 @Composable
 fun NowPlayingScreen(
     rising: MetroRisingPageState,
     queue: MetroRisingPageState,
     backdrop: Bitmap?,
-    onOpenQueue: () -> Unit,
     onNavigate: (Screen) -> Unit
 ) {
     val services = LocalServices.current
@@ -732,28 +729,6 @@ fun NowPlayingScreen(
                     ringSize = 60.dp
                 ) { services.player.next() }
             }
-        }
-
-        // The mark for the page above this one, in the band the column already leaves empty under the
-        // transport — a layer of its own rather than a row in that column, so the cover's size, which
-        // is what the column has left over, is not a pixel different for it being here.
-        //
-        // It is drawn whether or not the upward gesture is switched on, because with the gesture off it
-        // is the only way in; a caret that disappeared with the swipe would take the feature with it.
-        Box(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = 12.dp)
-                .size(width = 72.dp, height = 28.dp)
-                .clickable(onClickLabel = stringResource(R.string.queue_open)) { onOpenQueue() },
-            contentAlignment = Alignment.Center
-        ) {
-            MetroLineIcon(
-                icon = MetroIcon.ChevronUp,
-                color = colors.subtle,
-                modifier = Modifier.size(20.dp)
-            )
         }
     }
 }

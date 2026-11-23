@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -295,11 +296,21 @@ fun MetroMusicRoot(
         // what it looked like on a phone. The screen insets its own controls instead, and
         // MetroRisingPage adds the navigation bar to the strip height it rises out of.
             MetroRisingPage(rising) {
+                // The last stretch of the drop is a cross-fade with the strip rather than the page
+                // covering it to the very end: settling, the page spends its final moments sitting
+                // exactly over the strip, showing the top of its own picture where the strip's words
+                // belong, so the strip only appeared once the movement had quite finished. Fading
+                // the page out over the last [StripHandOff] of its travel lets the strip — which
+                // rises into place over the same stretch, see MiniPlayer — be there as it lands.
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer { alpha = (rising.progress / StripHandOff).coerceIn(0f, 1f) }
+                ) {
                 NowPlayingScreen(
                     rising = rising,
                     queue = queueRising,
                     backdrop = backdropArt,
-                    onOpenQueue = { queueOpen = true },
                     // The page is pushed under the player as it drops, so it is already there when
                     // the player is gone — and not pushed a second time if it is already on top.
                     onNavigate = { screen ->
@@ -308,6 +319,7 @@ fun MetroMusicRoot(
                         returnToPlayerAt = nav.size
                     }
                 )
+                }
             }
 
             // Over the player, and composed after it so that it is: the queue is the only thing in the
@@ -455,6 +467,9 @@ fun MetroMusicRoot(
         )
     }
 }
+
+/** How much of the player's travel, at the strip end, is a cross-fade between the page and the strip. */
+const val StripHandOff = 0.1f
 
 /** How long the "press back again" hint stays up, and therefore the window for that press. */
 private const val LeaveHintMillis = 2200

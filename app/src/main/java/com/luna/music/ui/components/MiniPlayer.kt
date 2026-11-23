@@ -46,6 +46,7 @@ import com.metrocompose.TransportButton
 import com.metrocompose.metroRiseDrag
 import com.metrocompose.rememberMetroSwipe
 import com.luna.music.R
+import com.luna.music.StripHandOff
 import com.luna.music.core.LocalServices
 import com.luna.music.playback.PlayerState
 
@@ -207,7 +208,16 @@ fun MiniPlayer(
                 .clickable { onOpen() }
                 // Sideways only: the upward pull is drawn by the page coming up over this strip, not
                 // by the strip moving out of the way underneath it.
-                .graphicsLayer { translationX = swipe.offset }
+                // And up, a little, into place: the strip's half of the hand-off with the player.
+                // Over the last stretch of the player's drop, as the page fades away above it, the
+                // strip's contents fade in rising 16dp — WP8's own way of bringing content onto a
+                // page — so the strip is there the moment the player lands instead of after it.
+                .graphicsLayer {
+                    val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
+                    translationX = swipe.offset
+                    translationY = covered * StripRise.toPx()
+                    alpha = 1f - covered
+                }
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
