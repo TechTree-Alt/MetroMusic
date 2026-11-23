@@ -189,6 +189,9 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 // More room over the title than the framework's 6dp: letters that rise above the
                 // capitals — the dot of the i in "music" — were cut off by the edge it clips at.
                 titleTopPadding = PanoramaTitleTopPadding,
+                // And more between the title and the section names than the framework's 6dp, so
+                // "music" and "albums" read as a heading and a subheading rather than one block.
+                titleGap = PanoramaTitleGap,
                 // No background of its own: the shell's one copy shows through, and this page pans it
                 // (LocalBackdropPan). A copy drawn here turned with the page on every page transition
                 // and did not match the shell's, so the picture jumped coming back from a page.
@@ -446,6 +449,9 @@ private fun HomeTitle(text: String, travelPx: Float, pan: () -> Float, rolledUp:
 /** The panorama's title size and its spacing, copied from the framework so the two agree. */
 private val HomeTitleSize = 108.sp
 private val HomeTitleTop = 22.dp
+
+/** Space between the panorama's title and its section names. */
+private val PanoramaTitleGap = 18.dp
 
 /** Space over the panorama's title, shared by the panorama's layout and the drawn [HomeTitle]. */
 private val PanoramaTitleTopPadding = HomeTitleTop
