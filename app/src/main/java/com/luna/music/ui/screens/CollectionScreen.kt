@@ -136,7 +136,6 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     var widthPx by remember { mutableIntStateOf(0) }
     val sectionPadPx = with(density) { PanoramaSectionPadding.toPx() }
     val sectionPx = (widthPx - sectionPadPx).coerceAtLeast(1f)
-    val lapPx = sectionPx * sections.size
     var travelled by remember { mutableFloatStateOf(0f) }
     // How far the title has rolled up, read the same way: the sections rise by exactly as much as
     // the title gives up (see `collapsingTitle`), so their top edge, against where it rests, is it.
@@ -227,10 +226,16 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                                     ?.takeIf { it.isAttached }
                                     ?: return@onGloballyPositioned
                                 val position = pageAt.localPositionOf(coordinates, Offset.Zero)
-                                if (lapPx > 0f) {
-                                    travelled =
-                                        (index * sectionPx - (position.x - sectionPadPx)).mod(lapPx)
-                                    backdropPan.value = coverPan(travelled, sectionPx, sections.size)
+                                // The page's width as measured now, not as last composed: a page
+                                // rebuilt on the way back is composed once before it has a width,
+                                // and a lap worked out from a width of nothing put the shared
+                                // backdrop somewhere random for a frame — the flicker on Back.
+                                val pageWidth = pageAt.size.width
+                                if (pageWidth > 0) {
+                                    val section = (pageWidth - sectionPadPx).coerceAtLeast(1f)
+                                    travelled = (index * section - (position.x - sectionPadPx))
+                                        .mod(section * sections.size)
+                                    backdropPan.value = coverPan(travelled, section, sections.size)
                                 }
                                 sectionTopPx = position.y
                                 if (sectionRestPx.isNaN() || position.y > sectionRestPx) {
