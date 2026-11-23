@@ -193,10 +193,8 @@
         songs work there too. without it they are read through android\'s folder access, which needs
         nothing more than picking the folder.</string>
     <string name="interface_lists">lists</string>
-    <string name="interface_collapse_title">roll the title away when scrolling</string>
-    <string name="interface_collapse_explainer">the big title — and on an album page its cover and
-        buttons — give up their height to the list once you scroll it, and come back when you drag that
-        list past its top.</string>
+    <string name="interface_collapse_title">roll an album page’s cover away when scrolling</string>
+    <string name="interface_collapse_explainer">on an album page, the big title, the cover and the buttons give up their height to the list once you scroll it, and come back when you drag that list past its top. the home screen’s title always stays where it is.</string>
     <string name="interface_album_grid">albums as a grid of covers</string>
     <string name="interface_letter_tiles">accent square behind group letters</string>
     <string name="interface_artist_albums">albums on an artist’s page</string>

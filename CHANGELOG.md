@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**The home screen's title stays put, and the index letter stays at the top.** Scrolling a section no
+longer rolls "music" and the section names away. In artists, albums and songs the current group's
+letter stays pinned at the top of the list until the next one arrives and pushes it off, as on the
+phone. "Roll the title away when scrolling" now applies to album pages only.
+
 **The real Windows Phone turnstile.** Opening a page, the one you are on turns away about its left
 edge and the new one swings in after it, with the phone's own angles, timing and easing (the values
 in Microsoft's published Windows Phone Toolkit); going back plays it in mirror. Settings pages open
