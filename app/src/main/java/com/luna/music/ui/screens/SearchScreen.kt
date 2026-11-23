@@ -21,7 +21,7 @@ import com.metrocompose.MetroBottomInset
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroSubheader
 import com.metrocompose.MetroPage
-import com.metrocompose.MetroTextBox
+import com.luna.music.ui.components.MetroTextBox
 import com.luna.music.R
 import com.luna.music.core.LocalServices
 import com.luna.music.data.model.Album

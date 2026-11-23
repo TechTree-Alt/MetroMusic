@@ -45,7 +45,7 @@ import com.metrocompose.MetroPage
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroSlider
 import com.metrocompose.MetroSubheader
-import com.metrocompose.MetroTextBox
+import com.luna.music.ui.components.MetroTextBox
 import com.metrocompose.MetroTheme
 import com.luna.music.R
 import com.luna.music.core.LocalServices
