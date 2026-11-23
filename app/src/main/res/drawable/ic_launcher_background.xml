@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The tile the headphones sit on: one flat grey, edge to edge of the 108dp canvas, so whatever
+<!-- The tile the headphones sit on: one flat colour (WP8 red), edge to edge of the 108dp canvas, so whatever
      shape the launcher cuts out of it there is no edge to find. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"

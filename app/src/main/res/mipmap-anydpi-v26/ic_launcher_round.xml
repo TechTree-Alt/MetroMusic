@@ -2,7 +2,7 @@
 <!-- The round launcher icon, for launchers that still ask for one by name: the same three layers as
      ic_launcher, which an adaptive icon already lets the launcher cut round.
 
-     The launcher icon: white headphones on a flat grey tile. See ic_launcher_foreground for
+     The launcher icon: white headphones on a WP8 red tile. See ic_launcher_foreground for
      the glyph and ic_launcher_background for the tile.
 
      All three layers are vectors on the 108dp adaptive canvas, so the launcher can mask, move and

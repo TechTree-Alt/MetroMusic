@@ -63,7 +63,7 @@ alone, under Settings → Apps → MetroMusic → Language.
 with a search button, one tap from every section; its ••• shows the button's label. Searching the
 whole library used to be a row in *more*.
 
-**A new icon.** Simplified white headphones on a flat grey tile, drawn as an adaptive icon: it fits
+**A new icon.** Simplified white headphones on a flat WP8 red tile (#E51400), drawn as an adaptive icon: it fits
 any shape a launcher cuts it to, and Android 13's themed icons get the headphones on their own.
 
 **Music on a USB drive, an SD card or any folder** ([#9]). Android does not list every drive in its
