@@ -360,9 +360,12 @@
     <string name="menu_merge_genre">merge into…</string>
     <string name="search_placeholder">search</string>
 
-    <!-- ==== searching the whole library, from the "more" section ==== -->
+    <!-- ==== searching the whole library, from the home panorama's application bar ==== -->
     <string name="search_title">search</string>
-    <string name="search_everywhere">artists, albums, songs, genres, playlists</string>
+    <!-- The caption of the app bar's search button, shown when the bar is opened with its "…". -->
+    <string name="action_search">search</string>
+    <!-- Spoken name of the app bar's "…", which shows the captions of the buttons beside it. -->
+    <string name="appbar_more">show button labels</string>
     <string name="search_hint">type to search the whole library.</string>
     <!-- No result at all; the query is repeated back so it is clear what was asked. -->
     <string name="search_nothing">nothing here matches “%1$s”.</string>

@@ -38,6 +38,7 @@ import com.metromusic.R
 import com.metromusic.core.LocalServices
 import com.metromusic.data.model.Track
 import com.metromusic.ui.Glyphs
+import com.metromusic.ui.LibraryIndex
 import com.metromusic.ui.components.TrackRow
 
 /**
@@ -84,9 +85,9 @@ fun AddToPlaylistScreen(playlistId: String, onDone: () -> Unit) {
             library.tracks
         } else {
             library.tracks.filter { track ->
-                track.title.contains(trimmed, true) ||
-                    track.artist.contains(trimmed, true) ||
-                    track.album.contains(trimmed, true)
+                LibraryIndex.matches(track.title, trimmed) ||
+                    LibraryIndex.matches(track.artist, trimmed) ||
+                    LibraryIndex.matches(track.album, trimmed)
             }
         }
     }

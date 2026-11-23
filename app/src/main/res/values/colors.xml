@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- What the icon artwork itself is drawn on, so the margin a squircle mask leaves around the
-         circle is the same paper as inside the picture rather than a second colour behind it. -->
-    <color name="ic_launcher_paper">#FDFDFE</color>
-    <!-- WP8 cyan, the framework's default accent. -->
+    <!-- WP8 cyan, the framework's default accent: the launcher icon's tile. -->
     <color name="ic_launcher_background">#1BA1E2</color>
-    <!-- The darker half of the icon's diagonal. Same hue, about 15% down in value. -->
-    <color name="ic_launcher_background_shade">#1587BD</color>
+    <!-- The deeper half of the icon's diagonal. Same hue, a little down in value — enough to see,
+         not enough to read as a second colour. -->
+    <color name="ic_launcher_background_shade">#1696D4</color>
 </resources>

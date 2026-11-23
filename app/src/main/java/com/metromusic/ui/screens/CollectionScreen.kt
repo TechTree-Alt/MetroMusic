@@ -3,8 +3,12 @@ package com.metromusic.ui.screens
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +33,7 @@ import com.metromusic.core.LocalServices
 import com.metromusic.data.model.Album
 import com.metromusic.data.store.LibrarySection
 import com.metromusic.ui.components.AppBackdrop
+import com.metromusic.ui.components.HomeAppBar
 import com.metromusic.ui.components.PlaylistPickerHost
 import com.metromusic.ui.components.TrackActionsHost
 import com.metromusic.ui.components.WideTile
@@ -98,95 +103,110 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     }
 
     Box(Modifier.fillMaxSize()) {
-        MetroPanorama(
-            // The app's own name as the big title, and no overline above it. "METROMUSIC /
-            // collection" said the same thing twice and cost a line of height at the top of the one
-            // screen where height is the scarce thing — the sections underneath want every pixel.
-            title = stringResource(R.string.app_name),
-            overline = null,
-            // The same drawing the shell puts behind every other page, so the wallpaper does not
-            // change when you leave the panorama — here it parallaxes, there it stays put.
-            background = { AppBackdrop() },
-            // The gradient is drawn to wrap and can be tiled; an album cover cannot — two copies of
-            // it meet in a hard vertical line through the picture. Which one the backdrop is drawing
-            // is a setting, so this follows the same setting.
-            backgroundTiles = !settings.artworkBackground,
-            // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
-            // almost none of its own and each section header takes the same indent instead. That
-            // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
-            sectionPadding = 2.dp,
-            // Settings → interface. The title is worth a row and a half of library, and whether that
-            // is a good trade is the user's call.
-            collapsingTitle = settings.collapseTitle,
-            sections = sections.map { section ->
-                MetroPanoramaSection(
-                    title = stringResource(sectionTitleOf(section)),
-                    key = section,
-                    headerPadding = 24.dp,
-                    // Only the sections that are lists of named things can be searched; tapping
-                    // "more" or "settings" has nothing to filter.
-                    onHeaderClick = if (section in Searchable) {
-                        { toggleSearch(section) }
-                    } else {
-                        null
-                    }
-                ) {
-                    // The list gets the height left under the header and the section's own width.
-                    val modifier = Modifier.fillMaxWidth().weight(1f)
-                    when (section) {
-                        LibrarySection.Artists -> ArtistsSection(
-                            library = library,
-                            modifier = modifier,
-                            onNavigate = ::leave,
-                            picker = picker,
-                            search = searchFor(section),
-                            onSearchChange = { query = it }
-                        )
-                        LibrarySection.Albums -> AlbumsSection(
-                            library = library,
-                            modifier = modifier,
-                            onNavigate = ::leave,
-                            picker = picker,
-                            search = searchFor(section),
-                            onSearchChange = { query = it }
-                        )
-                        LibrarySection.Songs -> SongsSection(
-                            library = library,
-                            modifier = modifier,
-                            currentTrackId = playerState.trackId,
-                            actions = actions,
-                            // The queue is the list the way the section is showing it — sorted the way
-                            // the user asked and filtered by whatever is in the search box — and the
-                            // index into it comes with it. Both are resolved on the tap, not during
-                            // composition: an indexOf per visible row is O(n) per frame.
-                            onPlay = { queue, index ->
-                                services.player.play(queue, index)
-                                searchIn = null
-                                query = ""
-                            },
-                            search = searchFor(section),
-                            onSearchChange = { query = it }
-                        )
-                        LibrarySection.Genres ->
-                            GenresSection(library, modifier, onNavigate, picker)
-                        LibrarySection.More -> MoreSection(
-                            modifier = modifier,
-                            playlistCount = playlists.items.size,
-                            scanning = scanning,
-                            onRescan = { services.library.rescan() },
-                            onNavigate = onNavigate
-                        )
-                        LibrarySection.History -> HistorySection(
-                            modifier = modifier,
-                            albums = recentAlbums,
-                            loaded = loaded,
-                            onNavigate = onNavigate
-                        )
-                        LibrarySection.Settings -> SettingsSection(modifier, onNavigate)
+        Column(Modifier.fillMaxSize()) {
+            MetroPanorama(
+                // The application bar below takes the gesture bar's inset, so the lists in the sections
+                // end above the bar rather than leaving the inset's height of empty room inside it too.
+                modifier = Modifier
+                    .weight(1f)
+                    .consumeWindowInsets(WindowInsets.navigationBars),
+                // The app's own name as the big title, and no overline above it. "METROMUSIC /
+                // collection" said the same thing twice and cost a line of height at the top of the one
+                // screen where height is the scarce thing — the sections underneath want every pixel.
+                title = stringResource(R.string.app_name),
+                overline = null,
+                // The same drawing the shell puts behind every other page, so the wallpaper does not
+                // change when you leave the panorama — here it parallaxes, there it stays put.
+                background = { AppBackdrop() },
+                // The gradient is drawn to wrap and can be tiled; an album cover cannot — two copies of
+                // it meet in a hard vertical line through the picture. Which one the backdrop is drawing
+                // is a setting, so this follows the same setting.
+                backgroundTiles = !settings.artworkBackground,
+                // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
+                // almost none of its own and each section header takes the same indent instead. That
+                // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
+                sectionPadding = 2.dp,
+                // Settings → interface. The title is worth a row and a half of library, and whether that
+                // is a good trade is the user's call.
+                collapsingTitle = settings.collapseTitle,
+                sections = sections.map { section ->
+                    MetroPanoramaSection(
+                        title = stringResource(sectionTitleOf(section)),
+                        key = section,
+                        headerPadding = 24.dp,
+                        // Only the sections that are lists of named things can be searched; tapping
+                        // "more" or "settings" has nothing to filter.
+                        onHeaderClick = if (section in Searchable) {
+                            { toggleSearch(section) }
+                        } else {
+                            null
+                        }
+                    ) {
+                        // The list gets the height left under the header and the section's own width.
+                        val modifier = Modifier.fillMaxWidth().weight(1f)
+                        when (section) {
+                            LibrarySection.Artists -> ArtistsSection(
+                                library = library,
+                                modifier = modifier,
+                                onNavigate = ::leave,
+                                picker = picker,
+                                search = searchFor(section),
+                                onSearchChange = { query = it }
+                            )
+                            LibrarySection.Albums -> AlbumsSection(
+                                library = library,
+                                modifier = modifier,
+                                onNavigate = ::leave,
+                                picker = picker,
+                                search = searchFor(section),
+                                onSearchChange = { query = it }
+                            )
+                            LibrarySection.Songs -> SongsSection(
+                                library = library,
+                                modifier = modifier,
+                                currentTrackId = playerState.trackId,
+                                actions = actions,
+                                // The queue is the list the way the section is showing it — sorted the way
+                                // the user asked and filtered by whatever is in the search box — and the
+                                // index into it comes with it. Both are resolved on the tap, not during
+                                // composition: an indexOf per visible row is O(n) per frame.
+                                onPlay = { queue, index ->
+                                    services.player.play(queue, index)
+                                    searchIn = null
+                                    query = ""
+                                },
+                                search = searchFor(section),
+                                onSearchChange = { query = it }
+                            )
+                            LibrarySection.Genres ->
+                                GenresSection(library, modifier, onNavigate, picker)
+                            LibrarySection.More -> MoreSection(
+                                modifier = modifier,
+                                playlistCount = playlists.items.size,
+                                scanning = scanning,
+                                onRescan = { services.library.rescan() },
+                                onNavigate = onNavigate
+                            )
+                            LibrarySection.History -> HistorySection(
+                                modifier = modifier,
+                                albums = recentAlbums,
+                                loaded = loaded,
+                                onNavigate = onNavigate
+                            )
+                            LibrarySection.Settings -> SettingsSection(modifier, onNavigate)
+                        }
                     }
                 }
-            }
-        )
+            )
+            // Searching the whole library, from the bottom of the screen where WP8 kept a page's commands.
+            // It used to be a row in "more", two swipes away from the landing section; on the bar it is
+            // one tap from every section, and it still does not compete with the section headers, whose
+            // tap opens the box that filters *that* section only.
+            HomeAppBar(
+                onSearch = { leave(Screen.Search) },
+                insetNavigationBar = !playerState.hasTrack
+            )
+        }
         TrackActionsHost(actions)
         PlaylistPickerHost(picker)
     }
@@ -225,17 +245,8 @@ private fun MoreSection(
     onNavigate: (Screen) -> Unit
 ) {
     LazyColumn(modifier) {
-        // The way in to searching the whole library at once. It lives here rather than on the
-        // panorama's title because the title has a job already — tapping a *section* header opens
-        // that section's own box — and two searches reachable by two taps on the same screen would
-        // be a puzzle about which one you were about to get.
-        item {
-            ListRow(
-                primary = stringResource(R.string.search_title),
-                secondary = stringResource(R.string.search_everywhere),
-                onClick = { onNavigate(Screen.Search) }
-            )
-        }
+        // Searching the whole library used to be the first row here; it is the application bar's
+        // search button now, which every section can reach.
         item {
             ListRow(stringResource(R.string.row_playlists), "$playlistCount") {
                 onNavigate(Screen.Playlists)

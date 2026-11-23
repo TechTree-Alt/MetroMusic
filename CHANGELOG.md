@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+**한국어.** The whole app is translated into Korean, and the indexes speak it too: Korean names are
+filed under their initial consonant, ㄱ to ㅎ, the way a Korean phone book files them, instead of
+all landing under `#`. Tense doubles go with their plain consonant (까치 beside 가수). A phone set to
+Korean reads ㄱ–ㅎ before A–Z in the jump grid. Searching takes the initial-consonant shorthand as
+well: ㅂㅌㅅㄴㄷ finds 방탄소년단. On Android 13 and later the language can also be picked for this app
+alone, under Settings → Apps → MetroMusic → Language.
+
+**Search is on the application bar.** The home panorama has a WP8 application bar along the bottom
+with a search button, one tap from every section; its ••• shows the button's label. Searching the
+whole library used to be a row in *more*.
+
+**A new icon.** A white note made of tiles on a tile of cyan, drawn as an adaptive icon: it fits
+any shape a launcher cuts it to, and Android 13's themed icons get the note on its own.
+
 **Music on a USB drive, an SD card or any folder** ([#9]). Android does not list every drive in its
 media library, so music on a USB stick on an OTG cable was invisible here. Settings → library has a
 *folders* list now: add a folder with the system's folder picker, or a connected drive in one tap,

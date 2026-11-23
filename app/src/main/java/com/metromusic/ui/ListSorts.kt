@@ -1,5 +1,6 @@
 package com.metromusic.ui
 
+import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
@@ -38,10 +39,40 @@ import java.util.Locale
  *    years — so those zoom out over what they have.
  */
 
+/**
+ * Whether the phone reads Korean, which puts ㄱ–ㅎ ahead of A–Z in every index — see [LibraryIndex].
+ * Read per composition rather than once, so changing the app's language takes effect on the next
+ * recomposition instead of on the next launch.
+ */
+private fun koreanFirst(): Boolean = Locale.getDefault().language == "ko"
+
+/**
+ * The A–Z arrangement, but over every alphabet [LibraryIndex] files: Latin, Cyrillic and Hangul by
+ * initial consonant. The framework's own `MetroListSort.alphabetical` puts a Korean name under '#'.
+ */
+private fun <T> alphabetical(
+    name: String,
+    koreanFirst: Boolean,
+    text: (T) -> String
+): MetroListSort<T> = MetroListSort(
+    name = name,
+    comparator = compareBy<T> { LibraryIndex.rankOf(LibraryIndex.bucketOf(text(it)), koreanFirst) }
+        .thenBy(String.CASE_INSENSITIVE_ORDER) { text(it).trim() },
+    header = { LibraryIndex.bucketOf(text(it)) },
+    jumpDomain = { present -> LibraryIndex.jumpDomain(present, koreanFirst) }
+)
+
 /** Seconds since the epoch as "july 2026", the unit a person actually remembers a file arriving in. */
 private fun monthLabeller(unknown: String): (Long) -> String {
     val zone = ZoneId.systemDefault()
-    val format = DateTimeFormatter.ofPattern("LLLL yyyy", Locale.getDefault())
+    // The locale's own arrangement of a month and a year rather than a fixed "LLLL yyyy": Korean
+    // writes the year first and with its own counters — "2026년 7월" — and "7월 2026" reads as a typo.
+    val locale = Locale.getDefault()
+    // ICU writes the skeleton's answer and java.time reads it; the two agree on these letters, and
+    // on the odd locale where they might not, the old fixed pattern is still a readable answer.
+    val format = runCatching {
+        DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "yMMMM"), locale)
+    }.getOrElse { DateTimeFormatter.ofPattern("LLLL yyyy", locale) }
     return { seconds ->
         // MediaStore writes seconds, and writes nothing at all for the odd row that was indexed
         // without one. Zero is not "January 1970" here, it is "unknown".
@@ -78,12 +109,13 @@ fun rememberSongSorts(playCounts: Map<Long, Int>): List<MetroListSort<Track>> {
     // The list is rebuilt only when the counts or the words change: the framework re-sorts when the
     // sort object does, so handing it a fresh one every recomposition would sort the whole library
     // on every frame.
-    return remember(playCounts, name, dateAdded, duration, plays) {
+    val koreanFirst = koreanFirst()
+    return remember(playCounts, name, dateAdded, duration, plays, koreanFirst) {
         val month = monthLabeller(dateUnknown)
 
         SongSort.entries.map { sort ->
             when (sort) {
-                SongSort.Name -> MetroListSort.alphabetical(name) { it.title }
+                SongSort.Name -> alphabetical(name, koreanFirst) { it.title }
 
                 // Newest first, and grouped by the month a file arrived — where a day per heading
                 // would be a list of headings and a year would be one heading.
@@ -144,18 +176,19 @@ fun rememberAlbumSorts(): List<MetroListSort<Album>> {
     val dateUnknown = stringResource(R.string.sort_group_added_unknown)
     val yearUnknown = stringResource(R.string.sort_group_year_unknown)
 
-    return remember(name, artist, dateAdded, year) {
+    val koreanFirst = koreanFirst()
+    return remember(name, artist, dateAdded, year, koreanFirst) {
         val month = monthLabeller(dateUnknown)
 
         AlbumSort.entries.map { sort ->
             when (sort) {
-                AlbumSort.Name -> MetroListSort.alphabetical(name) { it.title }
+                AlbumSort.Name -> alphabetical(name, koreanFirst) { it.title }
 
                 // Filed under the *artist's* letter — the same alphabet and the same zoom-out grid,
                 // answering a different question. Records by one artist keep the order the library
                 // hands them in, which is by title: an artist's own page is where a discography is
                 // read, and this list is still a list of albums.
-                AlbumSort.Artist -> MetroListSort.alphabetical(artist) { it.artist }
+                AlbumSort.Artist -> alphabetical(artist, koreanFirst) { it.artist }
 
                 AlbumSort.DateAdded -> MetroListSort(
                     name = dateAdded,
@@ -208,7 +241,8 @@ fun rememberArtistSorts(
     val playsSome = stringResource(R.string.sort_group_artist_plays_some)
     val playsMany = stringResource(R.string.sort_group_artist_plays_many)
 
-    return remember(library, playCounts, name, songs, albums, plays) {
+    val koreanFirst = koreanFirst()
+    return remember(library, playCounts, name, songs, albums, plays, koreanFirst) {
         // Summed once per artist, not inside the comparator: a comparator is called O(n log n) times,
         // and adding up an artist's tracks in there would walk the library that many times over.
         val playsByArtist = library.artists.associate { artist ->
@@ -217,7 +251,7 @@ fun rememberArtistSorts(
 
         ArtistSort.entries.map { sort ->
             when (sort) {
-                ArtistSort.Name -> MetroListSort.alphabetical(name) { it.name }
+                ArtistSort.Name -> alphabetical(name, koreanFirst) { it.name }
 
                 ArtistSort.Songs -> MetroListSort(
                     name = songs,

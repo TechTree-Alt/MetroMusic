@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The round launcher icon, for launchers that still ask for one by name: the same three layers as
+     ic_launcher, which an adaptive icon already lets the launcher cut round.
+
+     The launcher icon: a white note made of tiles on a tile of WP8 cyan. See ic_launcher_foreground
+     for the glyph and ic_launcher_background for the tile.
+
+     All three layers are vectors on the 108dp adaptive canvas, so the launcher can mask, move and
+     parallax them as it likes, and the themed-icon layer is the glyph on its own.
+
+     minSdk is 26, so there is no pre-adaptive PNG to keep in step: this file is the icon. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <!-- Android 13+ themed icons. -->
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>

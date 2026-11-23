@@ -25,7 +25,6 @@ import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroListBox
 import com.metrocompose.MetroLongList
 import com.metrocompose.MetroTextBox
-import com.metrocompose.metroGroupChar
 import com.metromusic.R
 import com.metromusic.core.LocalServices
 import com.metromusic.data.model.Library
@@ -39,6 +38,7 @@ import com.metromusic.ui.components.WideTile
 import com.metromusic.data.store.AlbumSort
 import com.metromusic.data.store.ArtistSort
 import com.metromusic.data.store.SongSort
+import com.metromusic.ui.LibraryIndex
 import com.metromusic.ui.formatAlbumCount
 import com.metromusic.ui.formatTrackCount
 import com.metromusic.ui.rememberAlbumSorts
@@ -87,9 +87,11 @@ private fun SearchableSection(
     }
 }
 
-/** Case-insensitive "contains", which is what people mean by searching a music library. */
-private fun matches(text: String, query: String?): Boolean =
-    query.isNullOrBlank() || text.contains(query.trim(), ignoreCase = true)
+/**
+ * Case-insensitive "contains", which is what people mean by searching a music library — plus the
+ * Korean initial-consonant shorthand; see [LibraryIndex.matches].
+ */
+private fun matches(text: String, query: String?): Boolean = LibraryIndex.matches(text, query)
 
 @Composable
 fun ArtistsSection(
@@ -308,7 +310,7 @@ fun GenresSection(
         itemCount = library.genres.size,
         label = { index ->
             library.genres.getOrNull(index)
-                ?.let { metroGroupChar(it).lowercaseChar().toString() }
+                ?.let { LibraryIndex.bucketOf(it) }
                 .orEmpty()
         }
     ) {

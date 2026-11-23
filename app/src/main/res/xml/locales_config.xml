@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The languages the app is translated into, so Android 13 and later can offer them under
+     Settings → Apps → MetroMusic → Language, whatever the phone itself is set to. One line per
+     values-xx folder: a language missing here exists but cannot be picked. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ko" />
+</locale-config>

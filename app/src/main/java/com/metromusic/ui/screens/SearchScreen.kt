@@ -33,6 +33,7 @@ import com.metromusic.ui.components.TrackActionsHost
 import com.metromusic.ui.components.TrackRowWithActions
 import com.metromusic.ui.components.WideTile
 import com.metromusic.ui.components.rememberTrackActions
+import com.metromusic.ui.LibraryIndex
 import com.metromusic.ui.formatAlbumCount
 import com.metromusic.ui.formatTrackCount
 import com.metromusic.ui.nav.Screen
@@ -228,7 +229,8 @@ private class Results(
 
         fun of(library: Library, playlists: List<Playlist>, query: String): Results {
             if (query.isEmpty()) return None
-            fun hit(text: String) = text.contains(query, ignoreCase = true)
+            // Korean initials typed on their own (ㅂㅌㅅㄴㄷ) find the names they begin, as well.
+            fun hit(text: String) = LibraryIndex.matches(text, query)
             return Results(
                 artists = library.artists.filter { hit(it.name) },
                 // An album matches on its own artist too, which is how "daft punk" finds Discovery
