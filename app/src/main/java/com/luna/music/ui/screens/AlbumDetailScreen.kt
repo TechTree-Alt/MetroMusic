@@ -35,6 +35,7 @@ import com.luna.music.R
 import com.luna.music.core.LocalServices
 import com.luna.music.ui.Glyphs
 import com.luna.music.ui.components.AlbumArt
+import com.luna.music.ui.components.TitledPage
 import com.luna.music.ui.components.PlaylistPickerHost
 import com.luna.music.ui.components.TrackActionsHost
 import com.luna.music.ui.components.TrackRowWithActions
@@ -78,7 +79,9 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
     val rolling = settings.collapseTitle
 
     Box(Modifier.fillMaxSize()) {
-        MetroPage(album.artist.uppercase(), album.title) {
+        // No overline: the artist is the accent link beside the cover, and saying it twice above
+        // the title only pushed the record down the page.
+        TitledPage(album.title) {
         // Clipped, so the cover slides up behind the page's title instead of over it.
         Column(if (rolling) Modifier.metroCollapseOnScroll(collapse).clipToBounds() else Modifier) {
         Column(if (rolling) Modifier.metroCollapsingHeader(collapse) else Modifier) {

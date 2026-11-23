@@ -44,7 +44,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.unit.Constraints
+import kotlin.math.roundToInt
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -147,6 +151,18 @@ private val AlbumSize = 26.sp
 private val TitleSize = 32.sp
 private val ArtistLyricsSize = 30.sp
 private val AlbumLyricsSize = 19.sp
+
+/**
+ * The header's change of size, as a *scale* of the cover-mode type rather than a font size.
+ *
+ * Animating `fontSize` re-lays the text out on every frame at a fractional size, and the font's
+ * hinting snaps each of those sizes to its own glyph metrics: the name shimmers and steps instead of
+ * shrinking. The lines are set once at [ArtistSize] and [AlbumSize] and drawn scaled, which is a
+ * transform and moves smoothly — and because the height they take up is exactly that scale of the
+ * full height, the words mode can work out in advance how much room the header gives back.
+ */
+private val ArtistLyricsScale = ArtistLyricsSize.value / ArtistSize.value
+private val AlbumLyricsScale = AlbumLyricsSize.value / AlbumSize.value
 
 /** The strip to the right of the cover that carries the toggles. */
 private val ToggleColumnWidth = 68.dp
@@ -332,11 +348,25 @@ fun NowPlayingScreen(
         // makes it stable rather than a guess that drifts.
         var facePx by remember { mutableIntStateOf(0) }
         var slackPx by remember { mutableIntStateOf(0) }
+        // The artist and album lines as they stand, so that the room they give back by shrinking
+        // into the words mode is part of the sum. Leaving it out is what made the bottom of the
+        // page jump at the end of the change: the face was sized for a header that had not shrunk,
+        // and the first measurement at rest found the difference and took it all in one frame.
+        var artistPx by remember { mutableIntStateOf(0) }
+        var albumPx by remember { mutableIntStateOf(0) }
         var wordsFace by remember { mutableStateOf(Dp.Unspecified) }
         val density = LocalDensity.current
-        LaunchedEffect(swap, facePx, slackPx, coverSize, wordsTopPad) {
+        LaunchedEffect(swap, facePx, slackPx, artistPx, albumPx, coverSize, wordsTopPad) {
             if (facePx <= 0 || (swap != 0f && swap != 1f)) return@LaunchedEffect
-            val reclaimed = if (swap == 0f) coverTopPad - wordsTopPad else 0.dp
+            val reclaimed = if (swap == 0f) {
+                // Rounded the way [scaledFromTopStart] rounds, so the prediction and the layout
+                // land on the same pixel and the measurement at rest in the words mode agrees.
+                val headerPx = artistPx - (artistPx * ArtistLyricsScale).roundToInt() +
+                    albumPx - (albumPx * AlbumLyricsScale).roundToInt()
+                coverTopPad - wordsTopPad + with(density) { headerPx.toDp() }
+            } else {
+                0.dp
+            }
             wordsFace = with(density) { (facePx + slackPx).toDp() } - TransportGap + reclaimed
         }
 
@@ -429,19 +459,22 @@ fun NowPlayingScreen(
                 previous = state.previous?.artist,
                 next = state.next?.artist,
                 // No end padding: the name runs to the edge of the screen and off it.
-                modifier = Modifier.padding(start = 24.dp)
+                modifier = Modifier
+                    .padding(start = 24.dp)
+                    .onSizeChanged { artistPx = it.height }
             ) { artist, slot ->
-                val size = lerp(ArtistSize, ArtistLyricsSize, swap)
+                val size = ArtistSize
+                val scale = { 1f + (ArtistLyricsScale - 1f) * swap }
                 if (slot == 0) {
                     FaceLink(artistTarget?.let { { onNavigate(Screen.ArtistDetail(it)) } }) {
                         key(slideEpoch) {
                             MetroSwap(target = artist, delayMillis = TextLead) {
-                                FaceLine(it, size, colors.fg, light = true, bleed = true)
+                                FaceLine(it, size, colors.fg, light = true, bleed = true, scale = scale)
                             }
                         }
                     }
                 } else {
-                    FaceLine(artist, size, colors.fg, light = true, bleed = true)
+                    FaceLine(artist, size, colors.fg, light = true, bleed = true, scale = scale)
                 }
             }
             PagedFace(
@@ -449,19 +482,22 @@ fun NowPlayingScreen(
                 current = state.album,
                 previous = state.previous?.album,
                 next = state.next?.album,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .onSizeChanged { albumPx = it.height }
             ) { album, slot ->
-                val size = lerp(AlbumSize, AlbumLyricsSize, swap)
+                val size = AlbumSize
+                val scale = { 1f + (AlbumLyricsScale - 1f) * swap }
                 if (slot == 0) {
                     FaceLink(albumTarget?.let { { onNavigate(Screen.AlbumDetail(it)) } }) {
                         key(slideEpoch) {
                             MetroSwap(target = album, delayMillis = TextLead + TextStagger) {
-                                FaceLine(it, size, colors.subtle)
+                                FaceLine(it, size, colors.subtle, scale = scale)
                             }
                         }
                     }
                 } else {
-                    FaceLine(album, size, colors.subtle)
+                    FaceLine(album, size, colors.subtle, scale = scale)
                 }
             }
 
@@ -794,7 +830,9 @@ private fun FaceLink(onClick: (() -> Unit)?, content: @Composable () -> Unit) {
  * One line of the face, so the three slots of a [PagedFace] cannot drift apart in style.
  *
  * [light] sets it in the light weight, which is what Metro uses for type this large; [bleed] lets it
- * run off the edge of the screen instead of ending in an ellipsis, as a heading does.
+ * run off the edge of the screen instead of ending in an ellipsis, as a heading does. [scale] draws it
+ * smaller than [size] without setting it again — read at layout time, so an animated scale costs a
+ * transform per frame rather than a recomposition and a fresh text layout.
  */
 @Composable
 private fun FaceLine(
@@ -802,10 +840,12 @@ private fun FaceLine(
     size: TextUnit,
     color: Color,
     light: Boolean = false,
-    bleed: Boolean = false
+    bleed: Boolean = false,
+    scale: () -> Float = { 1f }
 ) {
     Text(
         text = text,
+        modifier = Modifier.scaledFromTopStart(scale),
         color = color,
         fontFamily = if (light) MetroLight else MetroRegular,
         fontSize = size,
@@ -842,6 +882,35 @@ private fun <T> PagedFace(
         }
     }
 }
+
+/**
+ * Lays its content out at full size and draws it scaled from the top-start corner, taking up only the
+ * scaled room. The width it is offered is divided by the scale first, so a line that is drawn smaller
+ * also gets the room to say more before it ellipsises or meets the edge.
+ */
+private fun Modifier.scaledFromTopStart(scale: () -> Float): Modifier =
+    layout { measurable, constraints ->
+        val s = scale().coerceAtLeast(0.01f)
+        val inner = Constraints(
+            maxWidth = if (constraints.hasBoundedWidth) {
+                (constraints.maxWidth / s).roundToInt()
+            } else {
+                Constraints.Infinity
+            }
+        )
+        val placeable = measurable.measure(inner)
+        val width = (placeable.width * s).roundToInt()
+            .coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = (placeable.height * s).roundToInt()
+            .coerceIn(constraints.minHeight, constraints.maxHeight)
+        layout(width, height) {
+            placeable.placeRelativeWithLayer(0, 0) {
+                scaleX = s
+                scaleY = s
+                transformOrigin = TransformOrigin(0f, 0f)
+            }
+        }
+    }
 
 @Composable
 private fun TimeLabel(text: String) {

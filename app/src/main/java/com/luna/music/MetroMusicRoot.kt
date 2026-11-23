@@ -54,8 +54,12 @@ import com.metrocompose.MetroNavHost
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroRisingPage
 import com.metrocompose.MetroTheme
-import com.metrocompose.MetroTopBanner
-import com.metrocompose.MetroVolumeBanner
+import com.luna.music.ui.components.DropBanner
+import com.metrocompose.MetroLight
+import com.metrocompose.MetroProgressBar
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import com.metrocompose.rememberMetroBackStack
 import com.metrocompose.rememberMetroRisingPage
 import com.luna.music.R
@@ -437,42 +441,38 @@ fun MetroMusicRoot(
     }
 
     // The volume keys are consumed by the activity so Android's own panel never appears; this is
-    // what appears instead. What is playing is named under the bar, and nothing more: the banner
-    // arrives because a volume key was pressed, so the buttons it used to carry sat directly under a
-    // thumb that was already on the side of the phone, one tap from skipping the track you were
-    // turning up. The strip and the player are where the transport lives.
-    MetroVolumeBanner(
+    // what appears instead. Built here rather than with the framework's MetroVolumeBanner so it can
+    // be just the caption, the level and the bar: no speaker glyph, and no now-playing row — the
+    // banner arrives because a volume key was pressed, and the strip and the player already say
+    // what is playing. The caption is set exactly like the number — lowercase, Light, the same
+    // size, no tracking — and shares its baseline, so the two read as one line across the strip.
+    DropBanner(
         visible = volume.showing,
-        level = volume.level,
         onHide = { services.volume.hide() },
-        value = volume.step.toString(),
-        muted = volume.muted,
-        resetKey = volume.step,
-        media = if (playerState.hasTrack) {
-            {
-                Column(Modifier.fillMaxWidth()) {
-                    Text(
-                        text = playerState.title,
-                        color = MetroTheme.colors.fg,
-                        fontFamily = MetroRegular,
-                        fontSize = 16.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = playerState.artist,
-                        color = MetroTheme.colors.subtle,
-                        fontFamily = MetroRegular,
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        } else {
-            null
+        resetKey = volume.step
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(R.string.volume),
+                color = MetroTheme.colors.fg,
+                fontFamily = MetroLight,
+                fontSize = 30.sp,
+                maxLines = 1,
+                modifier = Modifier
+                    .weight(1f)
+                    .alignByBaseline()
+            )
+            Text(
+                text = volume.step.toString(),
+                color = MetroTheme.colors.fg,
+                fontFamily = MetroLight,
+                fontSize = 30.sp,
+                modifier = Modifier.alignByBaseline()
+            )
         }
-    )
+        Spacer(Modifier.height(10.dp))
+        MetroProgressBar(progress = volume.level.coerceIn(0f, 1f))
+    }
 
     // "Play next" has nothing on screen to show for itself — the page you are on does not change and
     // neither does the song — so it says so here. Which matters most when queueing several albums in
@@ -485,7 +485,7 @@ fun MetroMusicRoot(
         services.player.queued.collect { queued = it }
     }
     val notice = queued
-    MetroTopBanner(
+    DropBanner(
         visible = notice != null && !volume.showing,
         onHide = { queued = null },
         resetKey = notice?.sequence,
@@ -520,7 +520,7 @@ fun MetroMusicRoot(
     // report with: the list has already changed, because the change is real in memory and only the
     // file is behind.
     val playlistProblem by services.playlists.problem.collectAsStateWithLifecycle()
-    MetroTopBanner(
+    DropBanner(
         visible = playlistProblem != null && notice == null && !volume.showing,
         onHide = { services.playlists.problemSeen() },
         resetKey = playlistProblem,
@@ -564,7 +564,7 @@ fun MetroMusicRoot(
     // and nothing to get wrong about which press was which.
     var leaving by remember { mutableStateOf(false) }
     BackHandler(enabled = !playerOpen && !nav.canGoBack && !leaving) { leaving = true }
-    MetroTopBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
+    DropBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
         Text(
             text = stringResource(R.string.press_back_again),
             color = MetroTheme.colors.fg,
