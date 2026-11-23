@@ -20,6 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,7 +115,30 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     // questions AppBackdrop asks.
     val showsCover = settings.artworkBackground && playerState.hasTrack
 
-    Box(Modifier.fillMaxSize()) {
+    // How far round the panorama is, in px within one lap, read off where its sections are on screen —
+    // the panorama keeps its own scroll position to itself. Only the cover needs it; see CoverPan.
+    val density = LocalDensity.current
+    var widthPx by remember { mutableIntStateOf(0) }
+    val sectionPadPx = with(density) { PanoramaSectionPadding.toPx() }
+    val sectionPx = (widthPx - sectionPadPx).coerceAtLeast(1f)
+    val lapPx = sectionPx * sections.size
+    var travelled by remember { mutableFloatStateOf(0f) }
+
+    Box(Modifier.fillMaxSize().onSizeChanged { widthPx = it.width }) {
+        if (showsCover) {
+            // The cover, panned here rather than by the panorama, which pans a picture out and back
+            // and so turned round half way, in the middle section. See [coverPan].
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationX = -coverPan(travelled, sectionPx, sections.size) *
+                            CoverPanShare * size.width
+                    }
+            ) {
+                AppBackdrop(widen = PanoramaBackdropWiden)
+            }
+        }
         Column(Modifier.fillMaxSize()) {
             MetroPanorama(
                 // The application bar below takes the gesture bar's inset, so the lists in the sections
@@ -116,27 +146,23 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .consumeWindowInsets(WindowInsets.navigationBars),
-                // The app's own name as the big title, and no overline above it. "METROMUSIC /
-                // collection" said the same thing twice and cost a line of height at the top of the one
-                // screen where height is the scarce thing — the sections underneath want every pixel.
-                title = stringResource(R.string.app_name),
+                // "music" as the big title, and no overline above it — the hub's name, as the phone's
+                // own music hub had it, rather than the app's. A second line over it would cost height
+                // on the one screen where height is the scarce thing.
+                title = stringResource(R.string.home_title),
                 overline = null,
                 // The same drawing the shell puts behind every other page, so the wallpaper does not
-                // change when you leave the panorama — here it parallaxes, there it stays put.
-                //
-                // The cover cannot be tiled like the gradient, so the panorama pans one copy of it
-                // inside an overhang instead; the cover is drawn wide enough to fill that overhang
-                // (see AppBackdrop's `widen`), so the pan never uncovers the shell's copy beneath.
-                background = if (showsCover) CoverLayer else GradientLayer,
-                backgroundTiles = !showsCover,
+                // change when you leave the panorama — here it parallaxes, there it stays put. The
+                // gradient tiles, so the panorama pans it for ever; the cover is panned above instead.
+                background = if (showsCover) null else GradientLayer,
                 // The rows inside these sections bring their own 24dp gutter, so the panorama keeps
                 // almost none of its own and each section header takes the same indent instead. That
                 // way header and rows sit on one edge — see MetroPanoramaSection's headerPadding.
-                sectionPadding = 2.dp,
+                sectionPadding = PanoramaSectionPadding,
                 // Settings → interface. The title is worth a row and a half of library, and whether that
                 // is a good trade is the user's call.
                 collapsingTitle = settings.collapseTitle,
-                sections = sections.map { section ->
+                sections = sections.mapIndexed { index, section ->
                     MetroPanoramaSection(
                         title = stringResource(sectionTitleOf(section)),
                         key = section,
@@ -150,7 +176,18 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
                         }
                     ) {
                         // The list gets the height left under the header and the section's own width.
-                        val modifier = Modifier.fillMaxWidth().weight(1f)
+                        val modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            // Where this section is is where the panorama is: a section at rest
+                            // starts one padding in from the left edge, and every section to the
+                            // left of it is a section's width further round.
+                            .onGloballyPositioned { coordinates ->
+                                if (lapPx > 0f) {
+                                    val x = coordinates.positionInWindow().x
+                                    travelled = (index * sectionPx - (x - sectionPadPx)).mod(lapPx)
+                                }
+                            }
                         when (section) {
                             LibrarySection.Artists -> ArtistsSection(
                                 library = library,
@@ -222,8 +259,34 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
 /** The panorama's own, parallaxing copy of the backdrop, for when the backdrop is the gradient. */
 private val GradientLayer: @Composable BoxScope.() -> Unit = { AppBackdrop() }
 
-/** The same, for the cover: drawn wider than the window, for the panorama to pan inside. */
-private val CoverLayer: @Composable BoxScope.() -> Unit = { AppBackdrop(widen = PanoramaBackdropWiden) }
+/** The panorama's gutter, which is also the offset of a section at rest from the left edge. */
+private val PanoramaSectionPadding = 2.dp
+
+/**
+ * How far the cover pans over a whole lap, as a share of the window's width — inside the 0.4 of
+ * overhang it is drawn with (PanoramaBackdropWiden), so the pan never runs off its edge.
+ */
+private const val CoverPanShare = 0.3f
+
+/**
+ * Where the cover is in its pan, 0 to 1, for a panorama [travelled] px round a lap of [count]
+ * sections each [sectionPx] wide.
+ *
+ * One way from the first section to the last, at an even rate, so moving on through the sections
+ * always moves the picture the same way. Then, during the one swipe that wraps from the last section
+ * round to the first, it slides back to the start — which is what the phone's panorama did on the wrap,
+ * and the only place a picture that does not tile can go back. The two halves meet at both ends, so it
+ * is continuous all the way round and nothing jumps.
+ */
+private fun coverPan(travelled: Float, sectionPx: Float, count: Int): Float {
+    if (count < 2) return 0f
+    val forward = sectionPx * (count - 1)
+    return if (travelled <= forward) {
+        travelled / forward
+    } else {
+        (1f - (travelled - forward) / sectionPx).coerceIn(0f, 1f)
+    }
+}
 
 /** The sections whose header opens a search box: the ones that are lists of named things. */
 private val Searchable = setOf(

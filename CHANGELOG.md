@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+**"music" across the top.** The home panorama's big title is "music" (음악 in Korean) instead of the
+app's name, as the phone's own music hub was titled.
+
+**The cover pans one way.** Behind the home panorama the album cover drifts in one direction from the
+first section to the last instead of turning round in the middle one, and slides back only during the
+swipe that wraps from the last section round to the first.
+
 **Test builds install over each other.** Builds made without the release key — every GitHub Actions
 build until the signing secrets are set — are now all signed with one shared debug key kept in the
 repository, instead of a new random key per build that Android refused to install as an update.

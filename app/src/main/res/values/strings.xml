@@ -40,6 +40,8 @@
     <string name="unknown">unknown</string>
 
     <!-- ==== home panorama ==== -->
+    <!-- The big title across the top of the home panorama. -->
+    <string name="home_title">music</string>
     <string name="collection_title">collection</string>
     <string name="section_artists">artists</string>
     <string name="section_albums">albums</string>
