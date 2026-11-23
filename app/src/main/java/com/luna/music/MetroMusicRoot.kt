@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import com.luna.music.ui.components.TurnTotalMillis
 import com.luna.music.ui.components.TurnstilePage
 import androidx.compose.animation.togetherWith
@@ -358,13 +357,12 @@ fun MetroMusicRoot(
                 modifier = Modifier.graphicsLayer {
                     translationY = -appBarShown * appBarPx
                 },
-                // Solid: white in the light theme, black in the dark one — the phone's own two
-                // backgrounds, whatever the page above is drawn on. It used to show the top band of the
-                // playing cover, to match the player rising out of it; the player's last stretch is a
-                // cross-fade with the strip now (StripHandOff), so the two do not have to match.
+                // Solid, in the theme's background: white in the light theme, black in the dark one,
+                // and the user's own colour when one is chosen in Settings → theme. It used to show the
+                // top band of the playing cover, to match the player rising out of it; the player's
+                // last stretch is a cross-fade with the strip now (StripHandOff), so they need not match.
                 background = {
-                    val light = MetroTheme.colors.bg.luminance() > 0.5f
-                    Box(Modifier.fillMaxSize().background(if (light) Color.White else Color.Black))
+                    Box(Modifier.fillMaxSize().background(MetroTheme.colors.bg))
                 }
             ) {
                 MiniPlayer(state = playerState, rising = rising, onOpen = { playerOpen = true })
