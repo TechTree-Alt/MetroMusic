@@ -22,6 +22,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.luna.music.ui.components.TurnTotalMillis
+import com.luna.music.ui.components.TurnstilePage
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
@@ -288,11 +293,23 @@ fun MetroMusicRoot(
                 LocalOpenPlayer provides { playerOpen = true },
                 LocalOpenLyrics provides { trackId -> nav.push(Screen.Lyrics(trackId)) }
             ) {
-                // The framework's own page turn, size animation and all. It was briefly given an
-                // instant "snap" in place of that, to stop the frame springing while the bar under the
-                // strip came and went; the bar no longer resizes anything frame by frame, and the snap
-                // made Back flash the page being returned to for a frame before its turn began.
-                MetroNavHost(nav, Modifier.weight(1f)) { screen ->
+                // The Windows Phone turnstile (see TurnstilePage): the old page turns away about its
+                // left edge, then the new one swings in. The host's own transition is only asked to
+                // keep both pages composed for the length of the turn — fades that start and end
+                // fully opaque — and each page draws its own turn from its enter/exit state. The
+                // size animation is the framework's default, left alone: replacing it made Back
+                // flash the page being returned to for a frame.
+                MetroNavHost(
+                    nav,
+                    Modifier.weight(1f),
+                    transition = { _ ->
+                        fadeIn(tween(TurnTotalMillis), initialAlpha = 1f) togetherWith
+                            fadeOut(tween(TurnTotalMillis), targetAlpha = 1f)
+                    }
+                ) { screen ->
+                  // Settings pages bring their own entrance — their header and rows feather in —
+                  // so they are shown, not swung, once the old page has turned away.
+                  TurnstilePage(popping = nav.isPopping, turnsIn = screen !is Screen.SettingsDetail) {
                     when (screen) {
                         Screen.Collection -> CollectionScreen(onNavigate = nav::push)
                         Screen.Playlists -> PlaylistsScreen(onNavigate = nav::push)
@@ -312,6 +329,7 @@ fun MetroMusicRoot(
                             AddToPlaylistScreen(screen.playlistId, onDone = { nav.pop() })
                         is Screen.Lyrics -> LyricsScreen(screen.trackId)
                     }
+                  }
                 }
             }
 

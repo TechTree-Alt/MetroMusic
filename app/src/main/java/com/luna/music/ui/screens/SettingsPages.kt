@@ -30,6 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.text.style.TextOverflow
+import com.metrocompose.MetroLight
+import com.metrocompose.MetroSemilight
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.pluralStringResource
@@ -1153,14 +1157,44 @@ private fun lyricsSourceLabel(source: LyricsSource): Int = when (source) {
 
 @Composable
 internal fun SettingsPageFrame(title: String, content: @Composable () -> Unit) {
-    MetroPage("SETTINGS", title) {
-        // The rows deal themselves onto the page one after another as it opens — the phone's own
-        // entrance for a settings page — rather than arriving as one block. See FeatherColumn.
+    // The framework's MetroPage, drawn here so that its header can take part in the entrance: the
+    // overline and the title turn in first, as the Toolkit's feather effect has the page title lead,
+    // and the rows follow them one by one (FeatherColumn). Same spacing as MetroPage — 52dp down, the
+    // overline 24dp in, the 52sp light title 22dp in — and no background of its own, since the app's
+    // backdrop is behind every page.
+    val colors = MetroTheme.colors
+    Column(
+        Modifier
+            .fillMaxSize()
+            .navigationBarsPadding()
+            .padding(top = 52.dp)
+    ) {
+        FeatherColumn(Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(R.string.overline_settings),
+                color = colors.fg,
+                fontFamily = MetroSemilight,
+                fontSize = 13.sp,
+                letterSpacing = 2.sp,
+                modifier = Modifier.padding(start = 24.dp)
+            )
+            Text(
+                text = title,
+                color = colors.fg,
+                fontFamily = MetroLight,
+                fontSize = 52.sp,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 22.dp, end = 16.dp, top = 2.dp, bottom = 22.dp)
+            )
+        }
         FeatherColumn(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 40.dp)
+                .padding(bottom = 40.dp),
+            startIndex = 2
         ) {
             content()
         }

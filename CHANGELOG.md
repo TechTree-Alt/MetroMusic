@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**The real Windows Phone turnstile.** Opening a page, the one you are on turns away about its left
+edge and the new one swings in after it, with the phone's own angles, timing and easing (the values
+in Microsoft's published Windows Phone Toolkit); going back plays it in mirror. Settings pages open
+the phone's way too: the header and then each row turn in one after another, like slats of a door.
+
 **Coming back to the home screen no longer bobs.** Three things moved under the page as it turned
 back in: the home screen read its own position off the screen while the turn was still scaling it,
 so the title slid up and the background swung; the app bar under the strip unfolded by growing, which
