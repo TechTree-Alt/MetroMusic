@@ -54,7 +54,7 @@ import com.metrocompose.MetroNavHost
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroRisingPage
 import com.metrocompose.MetroTheme
-import com.metrocompose.MetroTopBanner
+import com.luna.music.ui.components.DropBanner
 import com.metrocompose.MetroLight
 import com.metrocompose.MetroProgressBar
 import androidx.compose.foundation.layout.Row
@@ -446,7 +446,7 @@ fun MetroMusicRoot(
     // banner arrives because a volume key was pressed, and the strip and the player already say
     // what is playing. The caption is set exactly like the number — lowercase, Light, the same
     // size, no tracking — and shares its baseline, so the two read as one line across the strip.
-    MetroTopBanner(
+    DropBanner(
         visible = volume.showing,
         onHide = { services.volume.hide() },
         resetKey = volume.step
@@ -485,7 +485,7 @@ fun MetroMusicRoot(
         services.player.queued.collect { queued = it }
     }
     val notice = queued
-    MetroTopBanner(
+    DropBanner(
         visible = notice != null && !volume.showing,
         onHide = { queued = null },
         resetKey = notice?.sequence,
@@ -520,7 +520,7 @@ fun MetroMusicRoot(
     // report with: the list has already changed, because the change is real in memory and only the
     // file is behind.
     val playlistProblem by services.playlists.problem.collectAsStateWithLifecycle()
-    MetroTopBanner(
+    DropBanner(
         visible = playlistProblem != null && notice == null && !volume.showing,
         onHide = { services.playlists.problemSeen() },
         resetKey = playlistProblem,
@@ -564,7 +564,7 @@ fun MetroMusicRoot(
     // and nothing to get wrong about which press was which.
     var leaving by remember { mutableStateOf(false) }
     BackHandler(enabled = !playerOpen && !nav.canGoBack && !leaving) { leaving = true }
-    MetroTopBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
+    DropBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
         Text(
             text = stringResource(R.string.press_back_again),
             color = MetroTheme.colors.fg,
