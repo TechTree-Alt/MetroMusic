@@ -417,6 +417,11 @@ private fun InterfaceSettings() {
         Spacer(Modifier.height(18.dp))
         MetroSubheader(top = 0.dp, text = stringResource(R.string.interface_lists))
         SettingRow(
+            title = stringResource(R.string.interface_album_grid),
+            checked = settings.albumGrid,
+            onChange = { services.settings.setAlbumGrid(it) }
+        )
+        SettingRow(
             title = stringResource(R.string.interface_letter_tiles),
             checked = settings.letterTiles,
             onChange = { services.settings.setLetterTiles(it) }

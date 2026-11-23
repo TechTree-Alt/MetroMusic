@@ -59,6 +59,7 @@ import com.metrocompose.MetroCrossfade
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroIcon
 import com.metrocompose.MetroLineIcon
+import com.metrocompose.MetroLight
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroSlideInEasing
 import com.metrocompose.MetroPageSwipeState
@@ -91,7 +92,7 @@ import com.luna.music.ui.nav.Screen
  * and album above the cover, and below it the position bar with its labels, the track title and the
  * button row. The cover gets whatever the window has left over.
  */
-private val ChromeHeight = 424.dp
+private val ChromeHeight = 468.dp
 
 /** How often the position is asked for when the square is showing a cover rather than words. */
 private const val SliderTickMs = 500L
@@ -129,14 +130,24 @@ private val LyricsHeaderGap = 16.dp
 private const val FaceSwapMillis = 420
 
 /**
- * The artist and the album above the face, the same in both modes.
+ * The text of the player, on the Windows Phone type ramp: the artist as the page's heading in the
+ * light weight at the size of a WP8 page title, the album a step down in the regular weight, and the
+ * song under the cover large and light again — the three things a now-playing screen is *for*, set
+ * as the biggest type on it, the way the phone's own Music player set them.
  *
- * They were briefly half again as large in the words mode and are not any more: the header is not
- * what is being read on that screen, and at 45sp it both crowded the words and ellipsised most real
- * artists' names.
+ * The artist does not ellipsise. Like a panorama title it runs off the right edge of the screen when
+ * it is longer than the screen is wide — cut by the edge, not abbreviated — which is the Metro way
+ * of setting a heading too big for its page.
+ *
+ * In the words mode the header steps back down to [ArtistLyricsSize] and [AlbumLyricsSize], in step
+ * with the change of face: the header is not what is being read on that screen, and at 45sp it
+ * crowded the words.
  */
-private val ArtistSize = 30.sp
-private val AlbumSize = 19.sp
+private val ArtistSize = 46.sp
+private val AlbumSize = 26.sp
+private val TitleSize = 32.sp
+private val ArtistLyricsSize = 30.sp
+private val AlbumLyricsSize = 19.sp
 
 /** The strip to the right of the cover that carries the toggles. */
 private val ToggleColumnWidth = 68.dp
@@ -420,17 +431,20 @@ fun NowPlayingScreen(
                 current = state.artist,
                 previous = state.previous?.artist,
                 next = state.next?.artist,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                // No end padding: the name runs to the edge of the screen and off it.
+                modifier = Modifier.padding(start = 24.dp)
             ) { artist, slot ->
-                val size = ArtistSize
+                val size = lerp(ArtistSize, ArtistLyricsSize, swap)
                 if (slot == 0) {
                     FaceLink(artistTarget?.let { { onNavigate(Screen.ArtistDetail(it)) } }) {
                         key(slideEpoch) {
-                            MetroSwap(target = artist, delayMillis = TextLead) { FaceLine(it, size, colors.fg) }
+                            MetroSwap(target = artist, delayMillis = TextLead) {
+                                FaceLine(it, size, colors.fg, light = true, bleed = true)
+                            }
                         }
                     }
                 } else {
-                    FaceLine(artist, size, colors.fg)
+                    FaceLine(artist, size, colors.fg, light = true, bleed = true)
                 }
             }
             PagedFace(
@@ -440,7 +454,7 @@ fun NowPlayingScreen(
                 next = state.next?.album,
                 modifier = Modifier.padding(horizontal = 24.dp)
             ) { album, slot ->
-                val size = AlbumSize
+                val size = lerp(AlbumSize, AlbumLyricsSize, swap)
                 if (slot == 0) {
                     FaceLink(albumTarget?.let { { onNavigate(Screen.AlbumDetail(it)) } }) {
                         key(slideEpoch) {
@@ -667,11 +681,11 @@ fun NowPlayingScreen(
                 if (slot == 0) {
                     key(slideEpoch) {
                         MetroSwap(target = title, delayMillis = TextLead + TextStagger * 2) {
-                            FaceLine(it, 22.sp, colors.fg)
+                            FaceLine(it, TitleSize, colors.fg, light = true)
                         }
                     }
                 } else {
-                    FaceLine(title, 22.sp, colors.fg)
+                    FaceLine(title, TitleSize, colors.fg, light = true)
                 }
             }
 
@@ -801,16 +815,28 @@ private fun FaceLink(onClick: (() -> Unit)?, content: @Composable () -> Unit) {
     Box(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier) { content() }
 }
 
-/** One line of the face, so the three slots of a [PagedFace] cannot drift apart in style. */
+/**
+ * One line of the face, so the three slots of a [PagedFace] cannot drift apart in style.
+ *
+ * [light] sets it in the light weight, which is what Metro uses for type this large; [bleed] lets it
+ * run off the edge of the screen instead of ending in an ellipsis, as a heading does.
+ */
 @Composable
-private fun FaceLine(text: String, size: TextUnit, color: Color) {
+private fun FaceLine(
+    text: String,
+    size: TextUnit,
+    color: Color,
+    light: Boolean = false,
+    bleed: Boolean = false
+) {
     Text(
         text = text,
         color = color,
-        fontFamily = MetroRegular,
+        fontFamily = if (light) MetroLight else MetroRegular,
         fontSize = size,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        softWrap = !bleed,
+        overflow = if (bleed) TextOverflow.Clip else TextOverflow.Ellipsis
     )
 }
 

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+**Albums as a grid of covers.** Settings → interface → *albums as a grid of covers* shows the albums
+section as two columns of large square covers. The group headings, the alphabet zoom-out, the
+hold-to-sort menu and the edge scrub all work as they do in the list. An album with no cover is a
+coloured tile with its name on it.
+
+**Bigger type on the player.** The artist is set large and light as the page's heading and runs off
+the edge of the screen rather than being cut short with "…"; the album and the song title are bigger
+too. They step back down while the player shows the words.
+
 **The player is easier to push away.** A downward push collapses the player even when the thumb's
 arc starts it off diagonally; it used to be read as a sideways swipe and change track or spring
 back. Mostly-downward drags anywhere on the player now take it down with the finger.

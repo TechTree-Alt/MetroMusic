@@ -185,6 +185,7 @@
     <string name="interface_collapse_title">스크롤하면 제목 접기</string>
     <string name="interface_collapse_explainer">큰 제목 — 앨범 페이지에서는 커버와 버튼까지 — 이 목록을
         스크롤하면 그 높이를 목록에 내주고, 목록을 맨 위 너머로 끌어내리면 다시 나타나요.</string>
+    <string name="interface_album_grid">앨범을 커버 그리드로 보기</string>
     <string name="interface_letter_tiles">그룹 글자 뒤에 강조색 사각형</string>
     <string name="interface_artist_albums">아티스트 페이지의 앨범</string>
     <string name="interface_artist_albums_year">최신순</string>

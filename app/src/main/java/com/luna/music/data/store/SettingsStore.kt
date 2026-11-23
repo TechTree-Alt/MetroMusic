@@ -261,6 +261,12 @@ data class Settings(
      */
     val letterTiles: Boolean = true,
     /**
+     * Show the albums section as a two-column grid of covers instead of the list of rows. The list
+     * stays the default: it carries each album's artist, and a grid of pictures is a choice for a
+     * library that is recognised by its covers.
+     */
+    val albumGrid: Boolean = false,
+    /**
      * Let a big page title roll away as the list under it is scrolled, and come back when that list is
      * dragged past its top.
      *
@@ -528,6 +534,8 @@ class SettingsStore(context: Context, scope: CoroutineScope) {
     fun setStripArtwork(on: Boolean) = store.update { it.copy(stripArtwork = on) }
 
     fun setLetterTiles(on: Boolean) = store.update { it.copy(letterTiles = on) }
+
+    fun setAlbumGrid(on: Boolean) = store.update { it.copy(albumGrid = on) }
 
     fun setCollapseTitle(on: Boolean) = store.update { it.copy(collapseTitle = on) }
 

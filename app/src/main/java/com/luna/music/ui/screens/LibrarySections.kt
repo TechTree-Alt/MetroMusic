@@ -1,6 +1,11 @@
 package com.luna.music.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,12 +28,15 @@ import com.metrocompose.MetroContextMenu
 import com.metrocompose.MetroEdgeScroll
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroListBox
+import com.metrocompose.MetroListSort
 import com.metrocompose.MetroLongList
 import com.metrocompose.MetroTextBox
 import com.luna.music.R
 import com.luna.music.core.LocalServices
+import com.luna.music.data.model.Album
 import com.luna.music.data.model.Library
 import com.luna.music.data.model.Track
+import com.luna.music.ui.components.AlbumGridTile
 import com.luna.music.ui.components.CollectionRowWithActions
 import com.luna.music.ui.components.PlaylistPicker
 import com.luna.music.ui.components.rememberCollectionActions
@@ -171,6 +179,21 @@ fun AlbumsSection(
     }
     val sorts = rememberAlbumSorts()
 
+    if (settings.albumGrid) {
+        SearchableSection(modifier, search, onSearchChange) { listModifier ->
+            AlbumGrid(
+                library = library,
+                albums = shown,
+                sorts = sorts,
+                selected = settings.albumSort.ordinal,
+                modifier = listModifier,
+                onNavigate = onNavigate,
+                picker = picker
+            )
+        }
+        return
+    }
+
     SearchableSection(modifier, search, onSearchChange) { listModifier ->
     MetroLongList(
         items = shown,
@@ -208,6 +231,124 @@ fun AlbumsSection(
     }
     }
 }
+
+/**
+ * One line of the albums grid: two albums side by side, or one at the end of a group. Every album in
+ * a row is under the same heading, so a row has one [label] and the list can group rows exactly as it
+ * groups albums.
+ */
+private data class AlbumRow(val index: Int, val label: String, val left: Album, val right: Album?)
+
+/**
+ * The albums section as a two-column grid of covers — the same list underneath, laid out in pairs.
+ *
+ * Built on [MetroLongList] rather than a lazy grid so that it keeps everything the list has: the
+ * group headings, the zoom-out over them, the hold on a heading that changes the arrangement, and
+ * the scrub down the edge. The albums are arranged by the chosen [sorts] entry first and split into
+ * its runs; each run is then cut into pairs, so a heading never has half a row of the group before it
+ * sitting beside the first album of the next. The list is then handed those rows, with an arrangement
+ * that keeps them in that order and labels them with their run's heading — and the same zoom-out
+ * domain as the album arrangement, so the alphabet still dims the letters you own nothing under.
+ */
+@Composable
+private fun AlbumGrid(
+    library: Library,
+    albums: List<Album>,
+    sorts: List<MetroListSort<Album>>,
+    selected: Int,
+    modifier: Modifier,
+    onNavigate: (Screen) -> Unit,
+    picker: PlaylistPicker?
+) {
+    val services = LocalServices.current
+    val settings by services.settings.settings.collectAsStateWithLifecycle()
+    val actions = rememberCollectionActions()
+    val sort = sorts[selected]
+
+    val rows = remember(albums, sort) {
+        val ordered = albums.sortedWith(sort.comparator)
+        val out = mutableListOf<AlbumRow>()
+        var run = mutableListOf<Album>()
+        var label: String? = null
+        fun flush() {
+            val l = label ?: return
+            run.chunked(2).forEach { pair -> out += AlbumRow(out.size, l, pair[0], pair.getOrNull(1)) }
+        }
+        ordered.forEach { album ->
+            val itemLabel = sort.header(album)
+            if (itemLabel != label) {
+                flush()
+                label = itemLabel
+                run = mutableListOf()
+            }
+            run += album
+        }
+        flush()
+        out
+    }
+    // One row arrangement per album arrangement, so the hold-on-a-heading menu lists the same names
+    // and picking one re-arranges the albums; only the one in force is ever used to lay rows out.
+    val rowSorts = remember(sorts) {
+        sorts.map { albumSort ->
+            MetroListSort<AlbumRow>(
+                name = albumSort.name,
+                comparator = compareBy<AlbumRow> { it.index },
+                header = { it.label },
+                jumpDomain = albumSort.jumpDomain
+            )
+        }
+    }
+
+    MetroLongList(
+        items = rows,
+        key = { "row-${it.left.id}" },
+        sort = rowSorts[selected],
+        modifier = modifier,
+        filledGroupHeaders = settings.letterTiles,
+        sorts = rowSorts,
+        onSortSelected = { index -> services.settings.setAlbumSort(AlbumSort.entries[index]) },
+        edgeScroll = settings.gestureEdgeScroll
+    ) { row ->
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp)) {
+            val tile = (maxWidth - GridGap) / 2
+            Row(horizontalArrangement = Arrangement.spacedBy(GridGap)) {
+                listOf(row.left, row.right).forEach { album ->
+                    Box(Modifier.width(tile)) {
+                        if (album != null) {
+                            CollectionRowWithActions(
+                                key = album.id,
+                                actions = actions,
+                                onPlay = { services.player.play(library.tracksOf(album)) },
+                                onPlayNext = {
+                                    services.player.playNext(library.tracksOf(album), album.title)
+                                },
+                                onHide = { services.hidden.hideAlbum(album.artist, album.title) },
+                                onAddToPlaylist = picker?.let { panel ->
+                                    { panel.open(library.tracksOf(album).map { it.id }) }
+                                },
+                                onEdit = { onNavigate(Screen.AlbumEdit(album.id)) }
+                            ) {
+                                AlbumGridTile(
+                                    albumId = album.id,
+                                    representativeTrackId = album.representativeTrackId,
+                                    title = album.title,
+                                    artist = album.artist,
+                                    size = tile,
+                                    onClick = { onNavigate(Screen.AlbumDetail(album.id)) },
+                                    continuumKey = "album-art-${album.id}",
+                                    onLongClick = { actions.open(album.id) }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** The space between two covers, across and down: the gap between tiles on the Start screen. */
+private val GridGap = 8.dp
 
 /**
  * Songs, arranged whichever way the user last asked for — the one section where that is offered.
