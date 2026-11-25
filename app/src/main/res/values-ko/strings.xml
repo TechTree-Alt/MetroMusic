@@ -342,7 +342,6 @@
     <string name="appbar_more">버튼 이름 보기</string>
     <string name="search_hint">입력하면 보관함 전체를 검색해요. 초성(ㅂㅌㅅ)으로도 찾을 수 있어요.</string>
     <string name="search_nothing">“%1$s”와(과) 일치하는 항목이 없어요.</string>
-    <string name="press_back_again">한 번 더 누르면 닫혀요</string>
     <string name="switch_on">켜짐</string>
     <string name="switch_off">꺼짐</string>
     <string name="action_cancel">취소</string>
@@ -464,7 +463,7 @@
     <string name="genre_gone">이 장르로 태그된 항목이 더 이상 없어요</string>
     <string name="playlist_not_found">찾을 수 없음</string>
     <string name="playlist_gone">이 재생목록은 삭제되었어요</string>
-    <string name="playlist_empty">아직 비어 있어요 — “노래 추가”를 탭하거나, 앱 어디서든 앨범, 아티스트,
+    <string name="playlist_empty">아직 비어 있어요 — 아래의 +를 탭해 노래를 추가하거나, 앱 어디서든 앨범, 아티스트,
         노래를 길게 누르세요</string>
     <string name="playlists_empty">아직 재생목록이 없어요 — +를 탭해서 만드세요</string>
     <string name="playlists_favorites">즐겨찾기</string>

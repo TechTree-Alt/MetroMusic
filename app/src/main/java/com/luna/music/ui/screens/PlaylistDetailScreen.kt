@@ -1,11 +1,13 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.ListRow
 import com.metrocompose.MetroContextMenu
 import com.metrocompose.MetroEmptyNote
@@ -100,27 +100,11 @@ fun PlaylistDetailScreen(playlistId: String, onNavigate: (Screen) -> Unit) {
 
     Box(Modifier.fillMaxSize()) {
         MetroPage(stringResource(R.string.overline_playlist), playlist.name) {
-            AppBar(Modifier.padding(bottom = 8.dp)) {
-                AppBarButton(Glyphs.Play, stringResource(R.string.action_play)) {
-                    if (playable.isNotEmpty()) services.player.play(playable, 0)
-                }
-                AppBarButton(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
-                    services.player.shuffleAll(playable)
-                }
-                // The answer to "add one song at a time is slow", and the reason it is a page
-                // rather than a panel: picking twenty songs out of a library is a list with a
-                // search box in it, which is a screen.
-                AppBarButton(Glyphs.Add, stringResource(R.string.playlist_add_songs)) {
-                    onNavigate(Screen.PlaylistAdd(playlist.id))
-                }
-            }
-
             if (entries.isEmpty()) {
-                MetroEmptyNote(stringResource(R.string.playlist_empty))
-                return@MetroPage
-            }
-
-            LazyColumn(Modifier.fillMaxSize()) {
+                Box(Modifier.weight(1f)) {
+                    MetroEmptyNote(stringResource(R.string.playlist_empty))
+                }
+            } else LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
                 itemsIndexed(
                     items = entries,
                     // The line's own position, because two lines may name the same file — queueing
@@ -236,6 +220,31 @@ fun PlaylistDetailScreen(playlistId: String, onNavigate: (Screen) -> Unit) {
                     }
                 }
             }
+
+            ApplicationBar(
+                listOf(
+                    glyphAction(
+                        Glyphs.Play,
+                        stringResource(R.string.action_play),
+                        enabled = playable.isNotEmpty()
+                    ) {
+                        services.player.play(playable, 0)
+                    },
+                    glyphAction(
+                        Glyphs.Shuffle,
+                        stringResource(R.string.action_shuffle),
+                        enabled = playable.isNotEmpty()
+                    ) {
+                        services.player.shuffleAll(playable)
+                    },
+                    // The answer to "add one song at a time is slow", and the reason it is a page
+                    // rather than a panel: picking twenty songs out of a library is a list with a
+                    // search box in it, which is a screen.
+                    glyphAction(Glyphs.Add, stringResource(R.string.playlist_add_songs)) {
+                        onNavigate(Screen.PlaylistAdd(playlist.id))
+                    }
+                )
+            )
         }
         TrackActionsHost(actions)
     }

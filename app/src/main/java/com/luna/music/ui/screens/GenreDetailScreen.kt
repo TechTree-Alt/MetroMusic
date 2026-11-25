@@ -1,8 +1,10 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -10,10 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroPage
 import com.luna.music.R
@@ -42,18 +41,7 @@ fun GenreDetailScreen(genre: String) {
                 MetroEmptyNote(stringResource(R.string.genre_gone))
                 return@MetroPage
             }
-            AppBar(Modifier.padding(bottom = 8.dp)) {
-                AppBarButton(Glyphs.Play, stringResource(R.string.action_play)) {
-                    services.player.play(tracks, 0)
-                }
-                AppBarButton(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
-                    services.player.shuffleAll(tracks)
-                }
-                AppBarButton(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
-                    picker.open(tracks.map { it.id })
-                }
-            }
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
                 items(tracks, key = { it.id }) { track ->
                     TrackRowWithActions(
                         track = track,
@@ -63,6 +51,19 @@ fun GenreDetailScreen(genre: String) {
                     )
                 }
             }
+            ApplicationBar(
+                listOf(
+                    glyphAction(Glyphs.Play, stringResource(R.string.action_play)) {
+                        services.player.play(tracks, 0)
+                    },
+                    glyphAction(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
+                        services.player.shuffleAll(tracks)
+                    },
+                    glyphAction(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
+                        picker.open(tracks.map { it.id })
+                    }
+                )
+            )
         }
         TrackActionsHost(actions)
         PlaylistPickerHost(picker)

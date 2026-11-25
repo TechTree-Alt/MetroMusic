@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.metrocompose.MetroLight
 import com.metrocompose.MetroRegular
 import com.metrocompose.MetroTheme
 import com.luna.music.R
@@ -127,12 +128,16 @@ fun MetroSwitch(
 }
 
 /**
- * A setting that is a switch: the title, the switch's state in words under it, and the switch at
- * the right — the layout of every switch on the phone's own settings pages. The whole row is the
- * target, so the words can be tapped as well as the switch.
+ * A setting that is a switch, laid out as WP8's toggle switch was: the setting's name as a **header**
+ * in small grey type, and under it the switch's state in large light type, "on" or "off", with the
+ * switch at the right of that line. The state is the big word because it is the answer — the header
+ * only says what the question was — which is also why a long header can wrap over two lines here
+ * without the row losing its shape. The whole row is the target, so the words can be tapped as well
+ * as the switch.
  *
- * The app's replacement for the framework's `SettingRow`, which draws the framework's toggle and
- * writes "On" and "Off" in English whatever the phone's language.
+ * The app's replacement for the framework's `SettingRow`, which draws the framework's toggle, writes
+ * "On" and "Off" in English whatever the phone's language, and set the name large and the state small
+ * — the hierarchy of the phone's switch turned upside down.
  */
 @Composable
 fun SettingRow(
@@ -143,7 +148,7 @@ fun SettingRow(
     onChange: (Boolean) -> Unit
 ) {
     val colors = MetroTheme.colors
-    Row(
+    Column(
         modifier
             .fillMaxWidth()
             .toggleable(
@@ -152,27 +157,32 @@ fun SettingRow(
                 role = Role.Switch,
                 onValueChange = onChange
             )
-            .padding(horizontal = 24.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 24.dp, vertical = 12.dp)
     ) {
-        Column(Modifier.weight(1f).padding(end = 16.dp)) {
-            Text(
-                text = title,
-                color = if (enabled) colors.fg else colors.dim,
-                fontFamily = MetroRegular,
-                fontSize = 22.sp
-            )
+        Text(
+            text = title,
+            color = if (enabled) colors.subtle else colors.dim,
+            fontFamily = MetroRegular,
+            fontSize = HeaderSize
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(if (checked) R.string.switch_on else R.string.switch_off),
-                color = colors.subtle,
-                fontFamily = MetroRegular,
-                fontSize = 14.sp
+                color = if (enabled) colors.fg else colors.dim,
+                fontFamily = MetroLight,
+                fontSize = StateSize,
+                maxLines = 1,
+                modifier = Modifier.weight(1f).padding(end = 16.dp)
             )
+            // The row already answers the tap; the switch only has to show it.
+            MetroSwitch(checked = checked, enabled = enabled)
         }
-        // The row already answers the tap; the switch only has to show it.
-        MetroSwitch(checked = checked, enabled = enabled)
     }
 }
+
+/** WP8's header and content sizes for a toggle switch (20 and 32 of 480 pixels), at this app's scale. */
+private val HeaderSize = 17.sp
+private val StateSize = 28.sp
 
 /** Proportions of the phone's switch: an 88 × 32 track and a 20 × 36 thumb, at about 0.7. */
 private val TrackWidth = 62.dp

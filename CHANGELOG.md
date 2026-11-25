@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+**Closer to the Windows Phone 8 design guidelines.** A pass over the app against Microsoft's own
+guidance for the platform:
+
+- **One Back leaves.** Back on the home screen closes the app in one press, as the platform required
+  of an app's first screen, instead of asking for a second press. The music keeps playing; it was
+  never the screen that was playing it.
+- **The home screen's app bar is minimized.** A panorama's app bar should be minimized, the Panorama
+  guidelines say, so on the home screen it is now a thin strip with the "…" at its end, giving the
+  lists back most of its height. Tap the strip to open it; tapping outside it or Back closes it.
+- **Page commands are at the bottom.** Album, genre and playlist pages, the playlists list, the
+  add-songs page and the queue had their app bar under the page title; it is now at the bottom edge,
+  where a Windows Phone page keeps its commands. The buttons are bare rings and their captions come
+  up with the "…"; Back closes an open bar before it leaves the page. On an album page the bar no
+  longer rolls away with the cover, so play and shuffle are still there half way down the tracks.
+- **Switches read like the phone's.** A switch's setting name is a small grey header and its state,
+  on or off, is the large word beside the switch — the phone's toggle switch — rather than the other
+  way round.
+
 **The icon is orange.** The headphones now sit on WP8 orange (#FA6800) instead of red.
 
 **The real Windows Phone turnstile.** Opening a page, the one you are on turns away about its left

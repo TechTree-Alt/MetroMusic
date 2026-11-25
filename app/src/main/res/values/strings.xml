@@ -85,16 +85,16 @@
 
     <!-- ==== last.fm loves ==== -->
     <string name="lastfm_loves">loved tracks</string>
-    <string name="lastfm_sync_loves">sync with favourites</string>
+    <string name="lastfm_sync_loves">sync with favorites</string>
     <string name="lastfm_loves_queue_hint">tap to send them now</string>
     <string name="lastfm_loves_sync_now">sync now</string>
     <string name="lastfm_loves_never">not synced yet</string>
     <string name="lastfm_loves_last">last synced %1$s</string>
     <string name="lastfm_loves_scratch">sync from scratch</string>
     <string name="lastfm_loves_scratch_hint">forget what was matched and merge both sides again</string>
-    <string name="lastfm_loves_explainer">favourites here and loved tracks on last.fm are kept the
+    <string name="lastfm_loves_explainer">favorites here and loved tracks on last.fm are kept the
         same in both directions: a heart added here is loved there, and one removed on the website
-        stops being a favourite here. tracks are matched by artist and title, so a file whose tags
+        stops being a favorite here. tracks are matched by artist and title, so a file whose tags
         differ from your profile is a different track. the first sync keeps everything from both
         sides.</string>
     <plurals name="loves_waiting">
@@ -119,7 +119,7 @@
     <string name="about_tile_songs">songs</string>
     <string name="about_tile_albums">albums</string>
     <string name="about_tile_artists">artists</string>
-    <string name="about_tile_favourites">favourites</string>
+    <string name="about_tile_favourites">favorites</string>
     <string name="about_tile_plays">plays</string>
     <string name="about_tile_playlists">playlists</string>
     <string name="about_explainer">each tile carries a real number from your own library, the way a
@@ -372,7 +372,6 @@
     <string name="search_hint">type to search the whole library.</string>
     <!-- No result at all; the query is repeated back so it is clear what was asked. -->
     <string name="search_nothing">nothing here matches “%1$s”.</string>
-    <string name="press_back_again">press back again to close</string>
     <!-- The state written under a switch's title on a settings row. -->
     <string name="switch_on">on</string>
     <string name="switch_off">off</string>
@@ -500,7 +499,7 @@
     <string name="genre_gone">nothing tagged with this genre any more</string>
     <string name="playlist_not_found">not found</string>
     <string name="playlist_gone">this playlist was deleted</string>
-    <string name="playlist_empty">nothing here yet — tap “add songs”, or hold an album, an
+    <string name="playlist_empty">nothing here yet — tap + below to add songs, or hold an album, an
         artist or a song anywhere in the app</string>
     <string name="playlists_empty">no playlists yet — tap + to make one</string>
     <string name="playlists_favorites">favorites</string>

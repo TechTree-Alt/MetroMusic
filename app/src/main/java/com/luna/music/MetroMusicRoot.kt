@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,12 +33,14 @@ import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
 import com.luna.music.ui.components.HomeAppBar
+import com.luna.music.ui.components.HomeAppBarRestingHeight
 import com.luna.music.ui.components.LocalHomeBarSpace
 import com.metrocompose.MetroBarRiseMillis
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -172,7 +175,13 @@ fun MetroMusicRoot(
     val onHome = nav.current == Screen.Collection
     val navigationInsetPx =
         with(density) { WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().roundToPx() }
-    var appBarPx by remember { mutableIntStateOf(0) }
+    // The bar's height at rest, which is a constant: the bar is minimized there (see HomeAppBar), and
+    // opening it slides it up *over* the strip rather than pushing the strip and the page up with it,
+    // as an open application bar covered the page on the phone. Measuring the open bar instead would
+    // re-lay out the whole panorama on every frame of the bar opening.
+    val appBarPx = with(density) { HomeAppBarRestingHeight.roundToPx() }
+    var appBarOpen by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(onHome) { if (!onHome) appBarOpen = false }
     val appBarShown by animateFloatAsState(
         targetValue = if (onHome) 1f else 0f,
         animationSpec = tween(MetroBarRiseMillis),
@@ -384,12 +393,22 @@ fun MetroMusicRoot(
         // Searching the whole library is its one command, one tap from every section, and it does not
         // compete with the section headers, whose tap filters that section only.
         if (appBarPresent) {
+            // While the bar is open, a tap anywhere else puts it away and does nothing else — the
+            // phone's behaviour, and what keeps a tap meant for "close this" from opening an album.
+            if (appBarOpen) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) { detectTapGestures { appBarOpen = false } }
+                )
+            }
             HomeAppBar(
                 onSearch = { nav.push(Screen.Search) },
                 insetNavigationBar = true,
+                expanded = appBarOpen,
+                onExpandedChange = { appBarOpen = it },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .onSizeChanged { appBarPx = (it.height - navigationInsetPx).coerceAtLeast(0) }
                     .graphicsLayer {
                         val covered = (rising.progress / StripHandOff).coerceIn(0f, 1f)
                         alpha = (1f - covered) * appBarShown
@@ -556,22 +575,11 @@ fun MetroMusicRoot(
     // does as well.
     BackHandler(enabled = queueOpen) { queueOpen = false }
 
-    // Leaving takes two presses. At the root of the stack a single stray Back — and the gesture is
-    // easy to trigger by accident on a tall phone — would otherwise close a music app mid-song.
-    //
-    // The second press is not handled here at all: arming the guard *disables* this handler, so Back
-    // falls through to the system and closes the activity the way it normally would. No `finish()`,
-    // and nothing to get wrong about which press was which.
-    var leaving by remember { mutableStateOf(false) }
-    BackHandler(enabled = !playerOpen && !nav.canGoBack && !leaving) { leaving = true }
-    DropBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
-        Text(
-            text = stringResource(R.string.press_back_again),
-            color = MetroTheme.colors.fg,
-            fontFamily = MetroRegular,
-            fontSize = 16.sp
-        )
-    }
+    // Back on the first page leaves the app, in one press, with nothing asked. That is the platform's
+    // rule (WP8 certification required Back on an app's first screen to close it) and it costs a music
+    // app nothing: playback lives in the media service, not in this activity, so the song carries on
+    // and the notification, the lock screen and the strip bring it back. An app that has to be asked
+    // twice to go away is the thing that rule was written against.
 }
 
 /** How far the app bar rises into place as the player hands back to it, as the strip does. */
@@ -579,9 +587,6 @@ private val AppBarRise = 16.dp
 
 /** How much of the player's travel, at the strip end, is a cross-fade between the page and the strip. */
 const val StripHandOff = 0.1f
-
-/** How long the "press back again" hint stays up, and therefore the window for that press. */
-private const val LeaveHintMillis = 2200
 
 /** Shorter than that: it is a receipt, not a question, and the next album is one tap away. */
 private const val QueuedHintMillis = 1600

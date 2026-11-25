@@ -1,5 +1,7 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,8 +35,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.Metro
 import com.metrocompose.MetroBottomInset
 import com.metrocompose.MetroEmptyNote
@@ -156,22 +156,6 @@ fun QueueScreen(rising: MetroRisingPageState, onClose: () -> Unit) {
                 return@Column
             }
 
-            // The one thing on this screen that is not a row moving under a finger, and the reason it
-            // is a button rather than another gesture: a queue somebody assembled out of four albums
-            // and then pruned is a playlist that does not exist yet, and the only alternative to
-            // keeping it here is building it again in the playlists screen from memory.
-            //
-            // Where the app puts an app bar — under the title, not at the bottom edge — and the inset
-            // is consumed before it, because [AppBar] clears the gesture bar for the case where it is
-            // the last thing on a full-bleed screen and here it is the first.
-            AppBar(
-                Modifier
-                    .consumeWindowInsets(WindowInsets.navigationBars)
-                    .padding(bottom = 4.dp)
-            ) {
-                AppBarButton(Glyphs.Add, stringResource(R.string.queue_save)) { saving = true }
-            }
-
             // And the list itself puts the page away, so the gesture is available anywhere on the
             // screen and not only on the title: a downward drag it has nothing left to scroll to — the
             // top of it, or a queue too short to scroll at all — becomes the page's own travel. It
@@ -179,7 +163,11 @@ fun QueueScreen(rising: MetroRisingPageState, onClose: () -> Unit) {
             // second drag detector fighting the list for the same finger.
             LazyColumn(
                 Modifier
-                    .fillMaxSize()
+                    .weight(1f)
+                    .fillMaxWidth()
+                    // The application bar under the list clears the gesture bar, so the list's own
+                    // end needs only its extra gap.
+                    .consumeWindowInsets(WindowInsets.navigationBars)
                     .metroRiseOverscroll(rising, enabled = settings.gestureQueueDown),
                 state = listState
             ) {
@@ -200,6 +188,17 @@ fun QueueScreen(rising: MetroRisingPageState, onClose: () -> Unit) {
                 }
                 item(key = "queue-inset") { MetroBottomInset(extra = 20.dp) }
             }
+
+            // The one thing on this screen that is not a row moving under a finger, and the reason it
+            // is a button rather than another gesture: a queue somebody assembled out of four albums
+            // and then pruned is a playlist that does not exist yet, and the only alternative to
+            // keeping it here is building it again in the playlists screen from memory. At the
+            // bottom edge, as every application bar is; it clears the gesture bar itself.
+            ApplicationBar(
+                listOf(
+                    glyphAction(Glyphs.Add, stringResource(R.string.queue_save)) { saving = true }
+                )
+            )
         }
     }
 

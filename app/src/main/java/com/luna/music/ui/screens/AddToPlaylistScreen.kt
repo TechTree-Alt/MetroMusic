@@ -1,12 +1,14 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,8 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroPage
 import com.metrocompose.MetroRegular
@@ -100,28 +100,6 @@ fun AddToPlaylistScreen(playlistId: String, onDone: () -> Unit) {
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 10.dp)
         )
 
-        AppBar(Modifier.padding(bottom = 8.dp)) {
-            // "all" is over what is *shown*, not over the library: with a query in the box that is
-            // the album or the artist somebody just searched for, which is what makes this screen
-            // an answer to "add a whole record" as well as to "add these twenty".
-            AppBarButton(Glyphs.SelectAll, stringResource(R.string.playlist_select_all)) {
-                selected = selected + shown.map { it.id }.filterNot { it in already }
-            }
-            AppBarButton(Glyphs.SelectNone, stringResource(R.string.playlist_select_none)) {
-                selected = emptySet()
-            }
-            AppBarButton(Glyphs.Add, stringResource(R.string.playlist_add_done)) {
-                if (selected.isNotEmpty()) {
-                    // In the library's own order rather than the order they were tapped: nobody
-                    // remembers the order they ticked twenty boxes in, and the list they were
-                    // ticked on is in front of them.
-                    services.playlists.add(playlist.id, library.tracks.map { it.id }
-                        .filter { it in selected })
-                }
-                onDone()
-            }
-        }
-
         Text(
             text = pluralStringResource(
                 R.plurals.playlist_selected,
@@ -135,11 +113,10 @@ fun AddToPlaylistScreen(playlistId: String, onDone: () -> Unit) {
         )
 
         if (shown.isEmpty()) {
-            MetroEmptyNote(stringResource(R.string.playlist_add_empty))
-            return@MetroPage
-        }
-
-        LazyColumn(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(1f)) {
+                MetroEmptyNote(stringResource(R.string.playlist_add_empty))
+            }
+        } else LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
             items(shown, key = { it.id }) { track ->
                 val isAlready = track.id in already
                 SelectableTrackRow(
@@ -156,6 +133,30 @@ fun AddToPlaylistScreen(playlistId: String, onDone: () -> Unit) {
                 )
             }
         }
+
+        ApplicationBar(
+            listOf(
+                // "all" is over what is *shown*, not over the library: with a query in the box
+                // that is the album or the artist somebody just searched for, which is what makes
+                // this screen an answer to "add a whole record" as well as to "add these twenty".
+                glyphAction(Glyphs.SelectAll, stringResource(R.string.playlist_select_all)) {
+                    selected = selected + shown.map { it.id }.filterNot { it in already }
+                },
+                glyphAction(Glyphs.SelectNone, stringResource(R.string.playlist_select_none)) {
+                    selected = emptySet()
+                },
+                glyphAction(Glyphs.Add, stringResource(R.string.playlist_add_done)) {
+                    if (selected.isNotEmpty()) {
+                        // In the library's own order rather than the order they were tapped:
+                        // nobody remembers the order they ticked twenty boxes in, and the list
+                        // they were ticked on is in front of them.
+                        services.playlists.add(playlist.id, library.tracks.map { it.id }
+                            .filter { it in selected })
+                    }
+                    onDone()
+                }
+            )
+        )
     }
 }
 

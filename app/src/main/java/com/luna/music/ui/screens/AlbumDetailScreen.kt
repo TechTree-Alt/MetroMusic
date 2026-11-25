@@ -1,5 +1,7 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,8 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.MetroEmptyNote
 import com.metrocompose.MetroPage
 import com.metrocompose.metroCollapseOnScroll
@@ -70,7 +70,7 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
     val tracks = remember(library, albumId) { library.tracksOf(album) }
     val totalMs = remember(tracks) { tracks.sumOf { it.durationMs } }
 
-    // The cover, the numbers and the app bar roll away as the track list is scrolled, and come back
+    // The cover and the numbers roll away as the track list is scrolled, and come back
     // when it is dragged past its top. On a record with more than a screenful of tracks that is the
     // difference between six rows and eleven; the cover has already done its job by then, and it is
     // still one drag away. The mechanism is the framework's — see MetroCollapse.
@@ -83,7 +83,14 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
         // the title only pushed the record down the page.
         TitledPage(album.title) {
         // Clipped, so the cover slides up behind the page's title instead of over it.
-        Column(if (rolling) Modifier.metroCollapseOnScroll(collapse).clipToBounds() else Modifier) {
+        Column(
+            Modifier
+                .weight(1f)
+                .then(
+                    if (rolling) Modifier.metroCollapseOnScroll(collapse).clipToBounds()
+                    else Modifier
+                )
+        ) {
         Column(if (rolling) Modifier.metroCollapsingHeader(collapse) else Modifier) {
             Row(Modifier.padding(start = 24.dp, end = 24.dp, bottom = 8.dp)) {
                 AlbumArt(
@@ -119,34 +126,6 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
                 }
             }
 
-            // The album as a whole, which the track rows underneath cannot express: tapping one of
-            // them plays the record *from there*, and neither of them queues it.
-            //
-            // This page used to have no app bar, on the grounds that play and shuffle were already on
-            // the albums list's long-press menu. Queueing is what changed that. Stacking up several
-            // albums means deciding about each one while looking at it — its cover, its year, its
-            // track list — and a menu you can only reach from a list one screen back is a menu that
-            // makes you leave and come back for every record.
-            AppBar(Modifier.padding(top = 4.dp, bottom = 8.dp)) {
-                AppBarButton(Glyphs.Play, stringResource(R.string.action_play)) {
-                    services.player.play(tracks, 0)
-                }
-                AppBarButton(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
-                    services.player.shuffleAll(tracks)
-                }
-                // A plus, as WP8's own "add to now playing" was: ⏭ is already the transport's "skip
-                // this", which is close to the opposite of what queueing means, and the caption
-                // underneath is what actually says which of the two it is.
-                AppBarButton(Glyphs.Add, stringResource(R.string.action_play_next)) {
-                    services.player.playNext(tracks, album.title)
-                }
-                // Adding a record to a playlist a track at a time was the thing the issue named.
-                // The caption is the short form: four captions across a phone is as many as the
-                // bar can spell out.
-                AppBarButton(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
-                    picker.open(tracks.map { it.id })
-                }
-            }
             Spacer(Modifier.height(6.dp))
         }
 
@@ -163,6 +142,41 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
                 }
             }
         }
+
+        // The album as a whole, which the track rows above cannot express: tapping one of them plays
+        // the record *from there*, and neither of them queues it.
+        //
+        // This page used to have no app bar, on the grounds that play and shuffle were already on the
+        // albums list's long-press menu. Queueing is what changed that. Stacking up several albums
+        // means deciding about each one while looking at it — its cover, its year, its track list —
+        // and a menu you can only reach from a list one screen back is a menu that makes you leave
+        // and come back for every record.
+        //
+        // At the bottom edge, where WP8 kept a page's commands, and so not part of what rolls away
+        // with the cover: it is the one part of the header that is still wanted half way down the
+        // track list.
+        ApplicationBar(
+            listOf(
+                glyphAction(Glyphs.Play, stringResource(R.string.action_play)) {
+                    services.player.play(tracks, 0)
+                },
+                glyphAction(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
+                    services.player.shuffleAll(tracks)
+                },
+                // A plus, as WP8's own "add to now playing" was: ⏭ is already the transport's
+                // "skip this", which is close to the opposite of what queueing means, and the
+                // caption is what actually says which of the two it is.
+                glyphAction(Glyphs.Add, stringResource(R.string.action_play_next)) {
+                    services.player.playNext(tracks, album.title)
+                },
+                // Adding a record to a playlist a track at a time was the thing the issue named.
+                // The caption is the short form: four captions across a phone is as many as the
+                // bar can spell out.
+                glyphAction(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
+                    picker.open(tracks.map { it.id })
+                }
+            )
+        )
         }
         TrackActionsHost(actions)
         PlaylistPickerHost(picker)

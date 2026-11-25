@@ -1,10 +1,12 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.ApplicationBar
+import com.luna.music.ui.components.glyphAction
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -15,10 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.metrocompose.AppBar
-import com.metrocompose.AppBarButton
 import com.metrocompose.ListRow
 import com.metrocompose.MetroContextMenu
 import com.metrocompose.MetroEmptyNote
@@ -80,17 +79,7 @@ fun PlaylistsScreen(onNavigate: (Screen) -> Unit) {
 
     Box(Modifier.fillMaxSize()) {
         MetroPage(stringResource(R.string.overline_app), stringResource(R.string.row_playlists)) {
-            AppBar(Modifier.padding(bottom = 8.dp)) {
-                AppBarButton(Glyphs.Add, stringResource(R.string.action_new)) { creating = true }
-                AppBarButton(Glyphs.Import, stringResource(R.string.playlist_import)) {
-                    importFile.launch(arrayOf("*/*"))
-                }
-                AppBarButton(Glyphs.Play, stringResource(R.string.playlists_favorites)) {
-                    if (favorites.isNotEmpty()) services.player.play(favorites, 0)
-                }
-            }
-
-            LazyColumn(Modifier.fillMaxSize()) {
+            LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
                 item {
                     ListRow(
                         primary = stringResource(R.string.playlists_favorites),
@@ -141,6 +130,22 @@ fun PlaylistsScreen(onNavigate: (Screen) -> Unit) {
                     }
                 }
             }
+
+            ApplicationBar(
+                listOf(
+                    glyphAction(Glyphs.Add, stringResource(R.string.action_new)) { creating = true },
+                    glyphAction(Glyphs.Import, stringResource(R.string.playlist_import)) {
+                        importFile.launch(arrayOf("*/*"))
+                    },
+                    glyphAction(
+                        Glyphs.Play,
+                        stringResource(R.string.playlists_favorites),
+                        enabled = favorites.isNotEmpty()
+                    ) {
+                        services.player.play(favorites, 0)
+                    }
+                )
+            )
         }
     }
 
