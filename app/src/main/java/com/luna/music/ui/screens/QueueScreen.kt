@@ -1,7 +1,7 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.AppBarMenuItem
 import com.luna.music.ui.components.ApplicationBar
-import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -53,7 +53,6 @@ import com.metrocompose.rememberMetroRowDismiss
 import com.luna.music.R
 import com.luna.music.core.LocalServices
 import com.luna.music.playback.TrackFace
-import com.luna.music.ui.Glyphs
 import com.luna.music.ui.components.AlbumArt
 import com.luna.music.ui.formatTrackCount
 
@@ -144,9 +143,9 @@ fun QueueScreen(rising: MetroRisingPageState, onClose: () -> Unit) {
                 if (entries.isNotEmpty()) {
                     Text(
                         text = formatTrackCount(entries.size),
-                        color = colors.dim,
+                        color = colors.subtle,
                         fontFamily = MetroRegular,
-                        fontSize = 13.sp
+                        fontSize = 15.sp
                     )
                 }
             }
@@ -194,9 +193,12 @@ fun QueueScreen(rising: MetroRisingPageState, onClose: () -> Unit) {
             // and then pruned is a playlist that does not exist yet, and the only alternative to
             // keeping it here is building it again in the playlists screen from memory. At the
             // bottom edge, as every application bar is; it clears the gesture bar itself.
+            // A menu item, not a plus in a ring: nothing about an icon says "keep this as a
+            // playlist", and a plus on a queue reads as "add to it".
             ApplicationBar(
-                listOf(
-                    glyphAction(Glyphs.Add, stringResource(R.string.queue_save)) { saving = true }
+                actions = emptyList(),
+                menuItems = listOf(
+                    AppBarMenuItem(stringResource(R.string.queue_save)) { saving = true }
                 )
             )
         }
@@ -341,7 +343,7 @@ private fun QueueRow(
                         text = face.artist,
                         color = colors.subtle,
                         fontFamily = MetroRegular,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

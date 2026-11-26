@@ -242,7 +242,7 @@ fun MiniPlayer(
                     text = state.artist,
                     color = colors.subtle,
                     fontFamily = MetroRegular,
-                    fontSize = 13.sp,
+                    fontSize = 15.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

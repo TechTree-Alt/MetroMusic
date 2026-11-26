@@ -23,7 +23,9 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -135,6 +137,12 @@ fun MetroSwitch(
  * without the row losing its shape. The whole row is the target, so the words can be tapped as well
  * as the switch.
  *
+ * Written in sentence caps, which is what Microsoft's text guidelines ask of toggle switches: the
+ * header's first letter is raised here, for every language whose script has one, so the strings can
+ * stay in the lowercase the rest of a settings page uses; "On" and "Off" come capitalised from the
+ * strings. Disabled, header, state and switch drop to 30% opacity together — the Toolkit's own
+ * disabled state for the control.
+ *
  * The app's replacement for the framework's `SettingRow`, which draws the framework's toggle, writes
  * "On" and "Off" in English whatever the phone's language, and set the name large and the state small
  * — the hierarchy of the phone's switch turned upside down.
@@ -148,9 +156,11 @@ fun SettingRow(
     onChange: (Boolean) -> Unit
 ) {
     val colors = MetroTheme.colors
+    val locale = LocalConfiguration.current.locales[0]
     Column(
         modifier
             .fillMaxWidth()
+            .alpha(if (enabled) 1f else DisabledAlpha)
             .toggleable(
                 value = checked,
                 enabled = enabled,
@@ -160,22 +170,22 @@ fun SettingRow(
             .padding(horizontal = 24.dp, vertical = 12.dp)
     ) {
         Text(
-            text = title,
-            color = if (enabled) colors.subtle else colors.dim,
+            text = title.replaceFirstChar { it.titlecase(locale) },
+            color = colors.subtle,
             fontFamily = MetroRegular,
             fontSize = HeaderSize
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(if (checked) R.string.switch_on else R.string.switch_off),
-                color = if (enabled) colors.fg else colors.dim,
+                color = colors.fg,
                 fontFamily = MetroLight,
                 fontSize = StateSize,
                 maxLines = 1,
                 modifier = Modifier.weight(1f).padding(end = 16.dp)
             )
             // The row already answers the tap; the switch only has to show it.
-            MetroSwitch(checked = checked, enabled = enabled)
+            MetroSwitch(checked = checked)
         }
     }
 }
@@ -183,6 +193,9 @@ fun SettingRow(
 /** WP8's header and content sizes for a toggle switch (20 and 32 of 480 pixels), at this app's scale. */
 private val HeaderSize = 17.sp
 private val StateSize = 28.sp
+
+/** The Toolkit's ToggleSwitch template takes a disabled switch to an opacity of 0.3. */
+private const val DisabledAlpha = 0.3f
 
 /** Proportions of the phone's switch: an 88 × 32 track and a 20 × 36 thumb, at about 0.7. */
 private val TrackWidth = 62.dp

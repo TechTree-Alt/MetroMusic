@@ -123,10 +123,10 @@ fun CollectionScreen(onNavigate: (Screen) -> Unit) {
     // out for a library that simply has no genre tags: the panorama reads its page numbers modulo the
     // section count, so a section appearing once the scan finishes would renumber every page and jump
     // the user somewhere else. Deciding on the API level keeps the count fixed for the whole session.
-    val sections = remember(settings.sectionOrder) {
-        settings.sections.filterNot {
+    val sections = remember(settings.sectionOrder, settings.hiddenSections) {
+        settings.shownSections.filterNot {
             it == LibrarySection.Genres && Build.VERSION.SDK_INT < Build.VERSION_CODES.R
-        }
+        }.ifEmpty { listOf(LibrarySection.Artists) }
     }
 
     // How far round the panorama is, in px within one lap, read off where its sections are on screen —

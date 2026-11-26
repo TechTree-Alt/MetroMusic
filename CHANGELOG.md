@@ -3,22 +3,42 @@
 ## Unreleased
 
 **Closer to the Windows Phone 8 design guidelines.** A pass over the app against Microsoft's own
-guidance for the platform:
+documents for the platform — the Windows Phone 8 SDK's documentation and theme resources, the
+Windows Phone Toolkit's control templates, and the UI Design and Interaction Guide (see
+`docs/design-guidelines.md` for what each rule is and where it comes from):
 
-- **One Back leaves.** Back on the home screen closes the app in one press, as the platform required
-  of an app's first screen, instead of asking for a second press. The music keeps playing; it was
-  never the screen that was playing it.
-- **The home screen's app bar is minimized.** A panorama's app bar should be minimized, the Panorama
-  guidelines say, so on the home screen it is now a thin strip with the "…" at its end, giving the
-  lists back most of its height. Tap the strip to open it; tapping outside it or Back closes it.
-- **Page commands are at the bottom.** Album, genre and playlist pages, the playlists list, the
-  add-songs page and the queue had their app bar under the page title; it is now at the bottom edge,
-  where a Windows Phone page keeps its commands. The buttons are bare rings and their captions come
-  up with the "…"; Back closes an open bar before it leaves the page. On an album page the bar no
-  longer rolls away with the cover, so play and shuffle are still there half way down the tracks.
-- **Switches read like the phone's.** A switch's setting name is a small grey header and its state,
-  on or off, is the large word beside the switch — the phone's toggle switch — rather than the other
-  way round.
+- **The app bar is the phone's.** On the home screen it is minimized, as the SDK documentation asks
+  of a panorama: a thin strip with the "…" at its end, giving the lists back most of its height. On
+  album, genre and playlist pages, the playlists list, the add-songs page and the queue it has moved
+  from under the page title to the bottom edge, where a Windows Phone page keeps its commands. Its
+  buttons are bare rings whose captions come up with the "…", and it now has a menu: actions no icon
+  can say — add to playlist, import, save the queue as a playlist, and settings on the home screen —
+  are menu items instead of puzzling icons. It closes on every one of the ways the guide lists:
+  tapping the dots, tapping anywhere outside it, Back, or choosing something. It is opaque now
+  (the documentation recommends only fully transparent, half or opaque).
+- **Switches read like the phone's.** A switch's setting name is a small grey header, and its state
+  is the large word beside the switch, "On" or "Off" — the layout and sizes of the Toolkit's
+  ToggleSwitch — rather than the other way round. A disabled switch fades to 30%, as the Toolkit's did.
+- **Capitals where the phone used them.** Microsoft's text guidelines put explanations, status and
+  notifications, progress text and toggle switches in sentence caps, and keep lowercase for titles,
+  list items and commands. Every explanation on the settings pages, every empty-list note and every
+  notice now starts with a capital (and names like Android, Last.fm and Genius keep theirs), while
+  titles, rows and menus stay lowercase. Commands lost their trailing "…", button labels are at most
+  two words ("log in", not "login"), and status lines lost their full stops.
+- **Readable explanations.** The explanations under settings were 13sp in the darkest grey; the guide
+  asks for nothing smaller than its normal text size, so they are now 15sp in the subtle grey the
+  phone used for such text — as are the other small grey lines in lists, the queue and the player.
+- **The home screen is called "metromusic".** The Panorama guidelines ask for the same title as the
+  app's tile on the home screen, which is "metromusic".
+- **Titles stay put by default.** Rolling the big title away while a list scrolls is now off unless
+  you turn it on in settings → interface: the guidelines ask that a panorama title not be animated or
+  resized, and that a page title keep its place. The album page has an "ALBUM" overline again, so its
+  title takes the same room as every other page's.
+- **Sections can be turned off.** The Panorama best practices recommend at most four sections. Every
+  section of the home screen can now be switched off in settings → interface, and settings stays one
+  tap away in the home screen's menu with its section off. Nothing is off by default.
+- **Bigger targets.** The section-order arrows, the artist link on an album page and the app bar's
+  "…" are at least the guide's 7 mm minimum, and colour swatches sit the guide's 2 mm apart.
 
 **The icon is orange.** The headphones now sit on WP8 orange (#FA6800) instead of red.
 

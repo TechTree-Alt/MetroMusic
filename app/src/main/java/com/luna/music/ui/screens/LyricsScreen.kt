@@ -209,8 +209,8 @@ private fun Credit(lyrics: Lyrics) {
                 stringResource(R.string.lyrics_source_tag, it)
             } ?: stringResource(R.string.lyrics_source_file_unnamed)
         },
-        color = colors.dim,
+        color = colors.subtle,
         fontFamily = MetroRegular,
-        fontSize = 12.sp
+        fontSize = 15.sp
     )
 }

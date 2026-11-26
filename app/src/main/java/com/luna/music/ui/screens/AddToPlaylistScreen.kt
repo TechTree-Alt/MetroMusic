@@ -106,9 +106,9 @@ fun AddToPlaylistScreen(playlistId: String, onDone: () -> Unit) {
                 selected.size,
                 selected.size
             ),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(start = 24.dp, bottom = 6.dp)
         )
 

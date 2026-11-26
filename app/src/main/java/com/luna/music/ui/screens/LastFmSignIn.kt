@@ -146,7 +146,7 @@ fun LastFmSignIn(onDone: () -> Unit) {
                     text = status,
                     color = colors.subtle,
                     fontFamily = MetroRegular,
-                    fontSize = 14.sp
+                    fontSize = 15.sp
                 )
             }
 

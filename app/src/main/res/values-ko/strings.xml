@@ -17,6 +17,7 @@
     <!-- ==== chrome shared by several pages ==== -->
     <string name="overline_app">METROMUSIC</string>
     <string name="overline_settings">설정</string>
+    <string name="overline_album">앨범</string>
     <string name="overline_artist">아티스트</string>
     <string name="overline_genre">장르</string>
     <string name="overline_playlist">재생목록</string>
@@ -37,7 +38,7 @@
     <string name="unknown">알 수 없음</string>
 
     <!-- ==== home panorama ==== -->
-    <string name="home_title">음악</string>
+    <string name="home_title">metromusic</string>
     <string name="collection_title">컬렉션</string>
     <string name="section_artists">아티스트</string>
     <string name="section_albums">앨범</string>
@@ -71,7 +72,7 @@
     <string name="settings_library_hint">무엇을 음악으로 볼지</string>
     <string name="settings_hidden">숨김</string>
     <string name="settings_hidden_hint">빼 둔 아티스트와 앨범</string>
-    <string name="hidden_empty">숨긴 항목이 없어요.</string>
+    <string name="hidden_empty">숨긴 항목이 없어요</string>
     <string name="hidden_explainer">숨긴 아티스트와 앨범은 앱의 모든 목록에서 빠져요.
         다시 보이게 하려면 탭하세요.</string>
     <string name="hidden_tap_to_show">탭해서 다시 보이기</string>
@@ -105,10 +106,10 @@
     <plurals name="about_pokes">
         <item quantity="other">%1$d번 누름</item>
     </plurals>
-    <string name="about_pokes_few">타일은 신경 안 써요.</string>
-    <string name="about_pokes_some">그 폰도 좋아했을 거예요.</string>
-    <string name="about_pokes_many">앱에서 쓸모없는 부분을 찾아내셨네요.</string>
-    <string name="about_pokes_plenty">어떤 타일도 이만큼 관심을 받아 본 적은 없어요.</string>
+    <string name="about_pokes_few">타일은 신경 안 써요</string>
+    <string name="about_pokes_some">그 폰도 좋아했을 거예요</string>
+    <string name="about_pokes_many">앱에서 쓸모없는 부분을 찾아내셨네요</string>
+    <string name="about_pokes_plenty">어떤 타일도 이만큼 관심을 받아 본 적은 없어요</string>
     <string name="about_tile_songs">노래</string>
     <string name="about_tile_albums">앨범</string>
     <string name="about_tile_artists">아티스트</string>
@@ -144,8 +145,9 @@
 
     <!-- ==== interface page ==== -->
     <string name="interface_sections">섹션</string>
-    <string name="interface_sections_explainer">밀어서 넘길 때 나오는 순서예요. 파노라마는 끝과 처음이
-        이어지므로, 마지막 섹션은 첫 섹션에서 왼쪽으로 한 번 밀면 나와요.</string>
+    <string name="interface_sections_explainer">밀어서 넘길 때 나오는 순서이고, 어떤 섹션을 둘지도 여기서 정해요. 파노라마는 끝과 처음이
+        이어지므로, 마지막 섹션은 첫 섹션에서 왼쪽으로 한 번 밀면 나와요. Microsoft는 파노라마에
+        섹션을 네 개 이하로 두라고 권장해요. 설정 섹션을 꺼도 홈 화면의 “…” 메뉴에서 설정을 열 수 있어요.</string>
     <string name="interface_move_up">▲</string>
     <string name="interface_move_down">▼</string>
     <string name="interface_screen">화면</string>
@@ -206,7 +208,7 @@
         물어봐요.</string>
 
     <!-- ==== equalizer page ==== -->
-    <string name="equalizer_none">이 기기에는 사용할 수 있는 이퀄라이저가 없어요.</string>
+    <string name="equalizer_none">이 기기에는 사용할 수 있는 이퀄라이저가 없어요</string>
     <string name="equalizer_preset">프리셋</string>
     <string name="equalizer_preset_custom">사용자 지정</string>
     <string name="equalizer_bands">대역</string>
@@ -308,7 +310,7 @@
     <string name="lyrics_folder_explainer">.lrc 파일을 음악과 다른 곳에 두거나, 이 폰이 노래 옆의 파일을
         넘겨주지 않을 때만 필요해요. 여기 지정한 폴더를 검색하며, 트랙 옆에 쓸 수 없을 때는 이
         폴더에 써요.</string>
-    <string name="lyrics_folder_clear">이 폴더 잊기</string>
+    <string name="lyrics_folder_clear">폴더 잊기</string>
     <string name="lyrics_save_lrc">가져온 가사를 .lrc로 저장</string>
     <string name="lyrics_save_lrc_explainer">서비스가 준 가사를 노래 옆 .lrc 파일 — 같은 폴더, 같은 이름,
         다른 모든 플레이어가 읽는 형식 — 에 써서 가사가 이 앱보다 오래 남게 해요. lrclib에서 저장한
@@ -320,7 +322,7 @@
     <string name="queue_overline">지금 재생 중</string>
     <string name="queue_title">대기열</string>
     <string name="queue_remove">제거</string>
-    <string name="queue_empty">대기열이 비어 있어요.</string>
+    <string name="queue_empty">대기열이 비어 있어요</string>
     <string name="queue_open">대기열 보기</string>
     <string name="queue_save">재생목록으로 저장</string>
 
@@ -333,7 +335,7 @@
     <string name="menu_remove_from_playlist">재생목록에서 제거</string>
     <string name="menu_hide">숨기기</string>
     <string name="menu_edit">편집</string>
-    <string name="menu_merge_genre">다른 장르로 합치기…</string>
+    <string name="menu_merge_genre">다른 장르로 합치기</string>
     <string name="search_placeholder">검색</string>
 
     <!-- ==== searching the whole library, from the home panorama's application bar ==== -->
@@ -341,7 +343,8 @@
     <string name="action_search">검색</string>
     <string name="appbar_more">버튼 이름 보기</string>
     <string name="search_hint">입력하면 보관함 전체를 검색해요. 초성(ㅂㅌㅅ)으로도 찾을 수 있어요.</string>
-    <string name="search_nothing">“%1$s”와(과) 일치하는 항목이 없어요.</string>
+    <string name="search_nothing">“%1$s”와(과) 일치하는 항목이 없어요</string>
+    <string name="press_back_again">한 번 더 누르면 닫혀요</string>
     <string name="switch_on">켜짐</string>
     <string name="switch_off">꺼짐</string>
     <string name="action_cancel">취소</string>
@@ -386,7 +389,7 @@
     <string name="album_edit_year">연도</string>
     <string name="album_edit_genre">장르</string>
     <string name="album_edit_saving">저장하는 중…</string>
-    <string name="album_edit_manage">앨범마다가 아니라 한 번만 허용</string>
+    <string name="album_edit_manage">한 번만 허용</string>
     <string name="album_edit_manage_explainer">android는 아직 묻지 않은 앨범마다 다시 물어봐요. android
         12부터는 시스템 설정에서 허용하는 특별한 앱 접근 권한으로 한 번에 허락할 수 있으며, 이 항목을
         누르면 바로 그 화면으로 가요. 두 번 답해야 해요. 먼저 android가 “사진 및 동영상”이라는 권한을
@@ -433,7 +436,7 @@
         대부분이 쓰는 표기를 남겨요. 장르를 길게 누르면 다른 장르로 직접 합칠 수 있어요.</string>
     <string name="menu_favorite">즐겨찾기</string>
     <string name="menu_unfavorite">즐겨찾기 해제</string>
-    <string name="playlist_new_option">새 재생목록…</string>
+    <string name="playlist_new_option">새 재생목록</string>
     <string name="playlist_new_title">새 재생목록</string>
 
     <!-- ==== player ==== -->
@@ -447,7 +450,7 @@
     <string name="volume">음량</string>
 
     <!-- ==== lyrics page ==== -->
-    <string name="lyrics_none">이 곡의 가사를 찾지 못했어요.</string>
+    <string name="lyrics_none">이 곡의 가사를 찾지 못했어요</string>
     <string name="lyrics_source">genius의 가사</string>
     <string name="lyrics_source_lrclib">lrclib의 가사</string>
     <string name="lyrics_source_file">출처: %1$s</string>
@@ -467,6 +470,8 @@
         노래를 길게 누르세요</string>
     <string name="playlists_empty">아직 재생목록이 없어요 — +를 탭해서 만드세요</string>
     <string name="playlists_favorites">즐겨찾기</string>
+    <!-- The playlists page's app-bar button that plays the favorites; a verb, as a button is. -->
+    <string name="playlists_play_favorites">즐겨찾기 재생</string>
     <string name="playlist_rename_title">재생목록 이름 바꾸기</string>
     <string name="playlist_delete_title">재생목록을 삭제할까요?</string>
     <string name="playlist_delete_message">“%1$s”이(가) 삭제돼요. 노래 파일은 기기에 그대로
@@ -480,7 +485,6 @@
     <string name="playlist_import">가져오기</string>
     <string name="playlist_export">내보내기</string>
     <string name="playlist_add_songs">노래 추가</string>
-    <string name="playlist_add_to_short">재생목록</string>
     <string name="playlist_add_title">노래 추가</string>
     <string name="playlist_add_empty">일치하는 항목 없음</string>
     <string name="playlist_select_all">전체</string>

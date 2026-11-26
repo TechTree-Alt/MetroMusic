@@ -28,8 +28,8 @@ import kotlin.math.sqrt
  *
  * Shut, it is a thin strip of the phone's chrome grey with the "…" at its right end, which is all the
  * height the panorama gives up to it; the lists want every pixel of the rest. Tapping the strip slides
- * it up to show its button with the caption under it, and using the button, tapping outside, or Back
- * puts it away again. See [ApplicationBar].
+ * it up to show its button with the caption under it and the menu, and using either, tapping outside,
+ * or Back puts it away again. See [ApplicationBar].
  *
  * @param insetNavigationBar whether this bar is the last thing on the screen and has to clear the
  *   gesture bar itself. Animated, so the bar does not jump when that changes.
@@ -37,6 +37,7 @@ import kotlin.math.sqrt
 @Composable
 fun HomeAppBar(
     onSearch: () -> Unit,
+    onSettings: () -> Unit,
     insetNavigationBar: Boolean,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
@@ -52,6 +53,11 @@ fun HomeAppBar(
     ApplicationBar(
         actions = listOf(
             AppBarAction(label = search, icon = { tint -> SearchGlyph(tint) }, onClick = onSearch)
+        ),
+        // Settings in the menu, where Windows Phone apps kept them: reachable from every section of
+        // the panorama, and still reachable if the settings section itself is turned off.
+        menuItems = listOf(
+            AppBarMenuItem(label = stringResource(R.string.section_settings), onClick = onSettings)
         ),
         mode = ApplicationBarMode.Minimized,
         bottomPadding = bottom,

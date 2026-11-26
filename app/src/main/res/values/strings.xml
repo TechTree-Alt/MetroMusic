@@ -2,9 +2,20 @@
 <!--
     Every word the app says, in one place.
 
-    Lower case throughout, on purpose: WP8 set page titles, headers and list rows in lower case and
-    that is part of the look, not a typo. A translation should keep it wherever the target language's
-    orthography allows.
+    Capitalisation follows Microsoft's "Text guidelines – capitalization" (UI Design and Interaction
+    Guide for Windows Phone 7, v2.0), which the phone itself followed:
+
+      lowercase       page titles, list titles, list group titles, buttons and commands (app-bar
+                      captions, menu items, context menus), list items, search box hints
+      Sentence caps   explanatory text, status and notification text, progress text ("Scanning…"),
+                      toggle switches (SettingRow raises the first letter of its header itself, so
+                      those strings stay lowercase here)
+      ALL CAPS        application titles (the overlines)
+
+    Proper nouns keep their capitals inside sentence-caps text (Android, Last.fm, Genius, USB). The
+    same guide's punctuation rules apply too: no ellipsis on a command ("merge into", not "merge
+    into…"), an ellipsis on progress text, and a closing full stop only on instructional text. A
+    translation should keep all of this wherever the target language's orthography allows.
 
     Adding a language means one folder — values-ru/strings.xml and so on — and nothing else; there is
     no user-visible literal left in the Kotlin. Counts go through <plurals> rather than through
@@ -20,6 +31,7 @@
     <!-- ==== chrome shared by several pages ==== -->
     <string name="overline_app">METROMUSIC</string>
     <string name="overline_settings">SETTINGS</string>
+    <string name="overline_album">ALBUM</string>
     <string name="overline_artist">ARTIST</string>
     <string name="overline_genre">GENRE</string>
     <string name="overline_playlist">PLAYLIST</string>
@@ -41,7 +53,7 @@
 
     <!-- ==== home panorama ==== -->
     <!-- The big title across the top of the home panorama. -->
-    <string name="home_title">music</string>
+    <string name="home_title">metromusic</string>
     <string name="collection_title">collection</string>
     <string name="section_artists">artists</string>
     <string name="section_albums">albums</string>
@@ -53,12 +65,12 @@
     <string name="row_playlists">playlists</string>
     <string name="row_rescan">rescan</string>
     <string name="row_rescan_hint">look for new music</string>
-    <string name="empty_no_artists">no artists yet</string>
-    <string name="empty_no_albums">no albums yet</string>
-    <string name="empty_no_songs">no songs found on this device</string>
-    <string name="empty_no_genres">no genre tags in this library</string>
-    <string name="empty_history">nothing played yet</string>
-    <string name="empty_history_loading">reading your library…</string>
+    <string name="empty_no_artists">No artists yet</string>
+    <string name="empty_no_albums">No albums yet</string>
+    <string name="empty_no_songs">No songs found on this device</string>
+    <string name="empty_no_genres">No genre tags in this library</string>
+    <string name="empty_history">Nothing played yet</string>
+    <string name="empty_history_loading">Reading your library…</string>
 
     <!-- ==== settings index ==== -->
     <string name="settings_theme">theme</string>
@@ -75,9 +87,9 @@
     <string name="settings_library_hint">what counts as music</string>
     <string name="settings_hidden">hidden</string>
     <string name="settings_hidden_hint">artists and albums you took out</string>
-    <string name="hidden_empty">nothing is hidden.</string>
-    <string name="hidden_explainer">hidden artists and albums are left out of every list in the app.
-        tap one to bring it back.</string>
+    <string name="hidden_empty">Nothing is hidden</string>
+    <string name="hidden_explainer">Hidden artists and albums are left out of every list in the app.
+        Tap one to bring it back.</string>
     <string name="hidden_tap_to_show">tap to show again</string>
     <string name="hidden_show_all">show everything</string>
     <string name="settings_about">about</string>
@@ -92,10 +104,10 @@
     <string name="lastfm_loves_last">last synced %1$s</string>
     <string name="lastfm_loves_scratch">sync from scratch</string>
     <string name="lastfm_loves_scratch_hint">forget what was matched and merge both sides again</string>
-    <string name="lastfm_loves_explainer">favorites here and loved tracks on last.fm are kept the
+    <string name="lastfm_loves_explainer">Favorites here and loved tracks on Last.fm are kept the
         same in both directions: a heart added here is loved there, and one removed on the website
-        stops being a favorite here. tracks are matched by artist and title, so a file whose tags
-        differ from your profile is a different track. the first sync keeps everything from both
+        stops being a favorite here. Tracks are matched by artist and title, so a file whose tags
+        differ from your profile is a different track. The first sync keeps everything from both
         sides.</string>
     <plurals name="loves_waiting">
         <item quantity="one">%1$d love waiting to go up</item>
@@ -107,23 +119,23 @@
     <string name="about_copyright">© 2026 Diffechento</string>
     <string name="about_licence">GNU General Public License v3 · built on MangoTile (MIT)</string>
     <string name="about_tiles">tiles</string>
-    <string name="about_pokes_none">tap one.</string>
+    <string name="about_pokes_none">Tap one.</string>
     <plurals name="about_pokes">
         <item quantity="one">%1$d poke</item>
         <item quantity="other">%1$d pokes</item>
     </plurals>
-    <string name="about_pokes_few">they don\'t mind.</string>
-    <string name="about_pokes_some">the phone would approve.</string>
-    <string name="about_pokes_many">you have found the pointless part of the app.</string>
-    <string name="about_pokes_plenty">this is the most attention any tile has ever had.</string>
+    <string name="about_pokes_few">They don\'t mind</string>
+    <string name="about_pokes_some">The phone would approve</string>
+    <string name="about_pokes_many">You have found the pointless part of the app</string>
+    <string name="about_pokes_plenty">This is the most attention any tile has ever had</string>
     <string name="about_tile_songs">songs</string>
     <string name="about_tile_albums">albums</string>
     <string name="about_tile_artists">artists</string>
     <string name="about_tile_favourites">favorites</string>
     <string name="about_tile_plays">plays</string>
     <string name="about_tile_playlists">playlists</string>
-    <string name="about_explainer">each tile carries a real number from your own library, the way a
-        live tile did. tap one to turn it over.</string>
+    <string name="about_explainer">Each tile carries a real number from your own library, the way a
+        live tile did. Tap one to turn it over.</string>
     <string name="about_notices">notices</string>
     <string name="about_notices_body">Apple Lossless decoding: Copyright © Peter McQuillan; ALAC
         decoder Copyright © 2005 David Hammerton. BSD 3-clause — redistributed in source and binary
@@ -132,8 +144,8 @@
         © 2015 Microsoft Corporation under the SIL Open Font License 1.1. jaudiotagger (LGPL-2.1)
         © Paul Taylor. AndroidX, Compose, Media3 and kotlinx (Apache-2.0) © The Android Open Source
         Project and JetBrains.\n\nNot affiliated with Microsoft, Last.fm or Genius.</string>
-    <string name="about_source">this app is free software under the GNU General Public License v3.
-        the complete source, and the full text of every licence above, are at
+    <string name="about_source">This app is free software under the GNU General Public License v3.
+        The complete source, and the full text of every licence above, are at
         github.com/Diffechento/MetroMusic</string>
 
     <!-- ==== theme page ==== -->
@@ -147,37 +159,39 @@
     <string name="theme_light">light</string>
     <string name="theme_tap_to_switch">tap to switch</string>
     <string name="theme_artwork_background">now playing album art as the background</string>
-    <string name="theme_explainer">the accent colours every tile, header and toggle in the app;
+    <string name="theme_explainer">The accent colours every tile, header and toggle in the app;
         the background is what the panorama and every page sit on.</string>
 
     <!-- ==== interface page ==== -->
     <string name="interface_sections">sections</string>
-    <string name="interface_sections_explainer">the order they come in when you swipe. the panorama
-        wraps, so the last one is also one swipe to the left of the first.</string>
+    <string name="interface_sections_explainer">The order they come in when you swipe, and which of them are there at all.
+        The panorama wraps, so the last one is also one swipe to the left of the first. Microsoft
+        recommends no more than four sections on a panorama; settings stays in the home screen\'s
+        menu, under “…”, with its section off.</string>
     <string name="interface_move_up">▲</string>
     <string name="interface_move_down">▼</string>
     <string name="interface_screen">screen</string>
     <string name="interface_full_screen">full screen</string>
-    <string name="interface_full_screen_explainer">the status bar goes away everywhere and the page
-        runs to the top edge of the screen. swipe down from that edge to bring the clock back for a
+    <string name="interface_full_screen_explainer">The status bar goes away everywhere and the page
+        runs to the top edge of the screen. Swipe down from that edge to bring the clock back for a
         few seconds; it leaves again by itself.</string>
     <string name="interface_strip">now playing strip</string>
     <string name="interface_strip_artwork">show the album art</string>
-    <string name="interface_strip_explainer">swipe the strip sideways to change track either
+    <string name="interface_strip_explainer">Swipe the strip sideways to change track either
         way.</string>
-    <string name="library_scan_report">the system knows about %1$d audio files here; %2$d are marked
+    <string name="library_scan_report">The system knows about %1$d audio files here; %2$d are marked
         as something other than music and %3$d are shorter than the minimum above.</string>
     <string name="library_scan_folders">%1$d more come from the folders below.</string>
     <string name="folders_heading">folders</string>
-    <string name="folders_explainer">music the phone does not list by itself — a usb drive, an sd
-        card, any folder at all. the app reads these on its own and keeps them up to date when a drive
+    <string name="folders_explainer">Music the phone does not list by itself — a USB drive, an SD
+        card, any folder at all. The app reads these on its own and keeps them up to date when a drive
         comes and goes; songs the phone already lists are not added twice.</string>
     <string name="folders_add">add a folder</string>
     <string name="folders_add_hint">a usb drive, an sd card, or a folder on the phone</string>
     <string name="folders_add_drive">add %1$s</string>
     <string name="folders_drive_hint">connected — tap to add the whole drive</string>
     <string name="folders_drive_hint_picker">connected — tap to choose it, or a folder on it</string>
-    <string name="folders_looking">looking…</string>
+    <string name="folders_looking">Looking…</string>
     <string name="folders_ready">%1$s</string>
     <string name="folders_ready_by_path">%1$s · read directly</string>
     <string name="folders_unavailable">not connected</string>
@@ -186,15 +200,15 @@
         or remove this and add the drive again</string>
     <string name="folders_remove">remove from the library</string>
     <string name="folders_full_access">all files access</string>
-    <string name="folders_on">on</string>
-    <string name="folders_off">off</string>
-    <string name="folders_full_access_explainer">optional. with it, drives and folders are read
+    <string name="folders_on">On</string>
+    <string name="folders_off">Off</string>
+    <string name="folders_full_access_explainer">Optional. With it, drives and folders are read
         directly: scanning is faster, and editing tags and finding .lrc files and covers beside the
-        songs work there too. without it they are read through android\'s folder access, which needs
+        songs work there too. Without it they are read through Android\'s folder access, which needs
         nothing more than picking the folder.</string>
     <string name="interface_lists">lists</string>
     <string name="interface_collapse_title">roll the title away when scrolling</string>
-    <string name="interface_collapse_explainer">the big title — and on an album page its cover and
+    <string name="interface_collapse_explainer">The big title — and on an album page its cover and
         buttons — give up their height to the list once you scroll it, and come back when you drag that
         list past its top.</string>
     <string name="interface_album_grid">albums as a grid of covers</string>
@@ -203,22 +217,22 @@
     <string name="interface_artist_albums_year">newest first</string>
     <string name="interface_artist_albums_year_oldest">oldest first</string>
     <string name="interface_artist_albums_name">by name</string>
-    <string name="interface_artist_albums_explainer">a discography reads as a run of releases, which
+    <string name="interface_artist_albums_explainer">A discography reads as a run of releases, which
         is why it is by year by default — newest first, or oldest first to read it from the start.
-        by name puts it in the alphabet instead. an album with no year in its tags goes last
+        By name puts it in the alphabet instead. An album with no year in its tags goes last
         whichever you pick.</string>
     <string name="library_split_artists">split artists in a credit</string>
-    <string name="library_split_artists_explainer">a track tagged “artist feat. guest” or
-        “artist, other” is listed under each of them, instead of making a section of its own. turn
+    <string name="library_split_artists_explainer">A track tagged “artist feat. guest” or
+        “artist, other” is listed under each of them, instead of making a section of its own. Turn
         this off if it splits a band whose name has a comma or an ampersand in it.</string>
     <string name="artwork_heading">album art</string>
     <string name="artwork_online">look up missing covers</string>
-    <string name="artwork_online_explainer">for albums with no cover in their files, ask last.fm for
-        one and keep it on this device. nothing is sent but the artist and album name, and an album
+    <string name="artwork_online_explainer">For albums with no cover in their files, ask Last.fm for
+        one and keep it on this device. Nothing is sent but the artist and album name, and an album
         is asked about once.</string>
 
     <!-- ==== equalizer page ==== -->
-    <string name="equalizer_none">this device has no equalizer to offer.</string>
+    <string name="equalizer_none">This device has no equalizer to offer</string>
     <string name="equalizer_preset">preset</string>
     <string name="equalizer_preset_custom">custom</string>
     <string name="equalizer_bands">bands</string>
@@ -237,7 +251,7 @@
     <string name="lastfm_signed_out">not signed in</string>
     <!-- %1$s is the last.fm username. -->
     <string name="lastfm_signed_in_as">signed in as %1$s</string>
-    <string name="lastfm_login">login</string>
+    <string name="lastfm_login">log in</string>
     <string name="lastfm_logout">log out</string>
     <string name="lastfm_needs_key">needs an api key first</string>
     <string name="lastfm_tap_sign_out">tap to sign out</string>
@@ -246,18 +260,18 @@
         now</string>
     <string name="lastfm_api_key">api key</string>
     <string name="lastfm_api_secret">shared secret</string>
-    <string name="lastfm_key_explainer">an api key identifies this app, not you. create one at
+    <string name="lastfm_key_explainer">An API key identifies this app, not you. Create one at
         last.fm/api/account/create and paste it here, or put LASTFM_API_KEY and LASTFM_API_SECRET in
         local.properties before building.</string>
-    <string name="lastfm_asking">asking last.fm for a token…</string>
-    <string name="lastfm_no_answer">last.fm did not answer. check the api key and the
+    <string name="lastfm_asking">Asking Last.fm for a token…</string>
+    <string name="lastfm_no_answer">Last.fm did not answer. Check the API key and the
         network.</string>
     <string name="lastfm_authorize">sign in and allow access</string>
-    <string name="lastfm_gave_up">gave up waiting. close this and try again.</string>
-    <string name="lastfm_wrong_secret">last.fm does not accept this shared secret. it is the
-        second code on your api account page, not the api key — paste it again, save, and sign in
+    <string name="lastfm_gave_up">Gave up waiting. Close this and try again.</string>
+    <string name="lastfm_wrong_secret">Last.fm does not accept this shared secret. It is the
+        second code on your API account page, not the API key — paste it again, save, and sign in
         again.</string>
-    <string name="lastfm_checking">checking with last.fm…</string>
+    <string name="lastfm_checking">Checking with Last.fm…</string>
 
     <!-- ==== playback and library pages ==== -->
     <string name="playback_loudness">loudness</string>
@@ -267,37 +281,37 @@
     <string name="resume_position_off">never — every track starts from the top</string>
     <!-- The threshold in the resume row, e.g. "15 minutes". -->
     <string name="resume_position_value">%1$d minutes</string>
-    <string name="resume_position_explainer">a song comes back from its beginning, which is what a
-        song is for. a podcast or an audiobook two hours long does not: past this length the app
+    <string name="resume_position_explainer">A song comes back from its beginning, which is what a
+        song is for. A podcast or an audiobook two hours long does not: past this length the app
         keeps the exact moment you were at, and the next launch picks up from there.</string>
     <string name="playback_normalize">even out the volume between tracks</string>
-    <string name="playback_normalize_explainer">uses the replaygain tags your files were given when
-        they were ripped or tagged. it can only turn a loud track down, never a quiet one up, and a
+    <string name="playback_normalize_explainer">Uses the ReplayGain tags your files were given when
+        they were ripped or tagged. It can only turn a loud track down, never a quiet one up, and a
         file with no such tag plays as it is.</string>
     <string name="library_album_artist">believe the album artist tag</string>
-    <string name="library_album_artist_explainer">a record is filed under its album artist rather
+    <string name="library_album_artist_explainer">A record is filed under its album artist rather
         than under whoever its first track credits — which is what keeps a compilation together, and
-        an album whose every track says “band feat. someone” under the band. turn it off if a ripper
-        wrote something odd in that tag. needs android 11.</string>
+        an album whose every track says “band feat. someone” under the band. Turn it off if a ripper
+        wrote something odd in that tag. Needs Android 11.</string>
     <string name="library_artists_album_artist">artists from the album artist</string>
-    <string name="library_artists_album_artist_explainer">every track goes to one artist — the first
+    <string name="library_artists_album_artist_explainer">Every track goes to one artist — the first
         name its album artist tag gives — so a record tagged “band, orchestra, guest, guest” belongs to
-        the band and the guests are not artists of their own. the first name only, because plenty of
-        files repeat the whole guest list in that tag as well. leave splitting on above, or there is no
-        first name to take. a track with no album artist tag goes under the first name of its own
-        credit. turns believing that tag on with it.</string>
+        the band and the guests are not artists of their own. The first name only, because plenty of
+        files repeat the whole guest list in that tag as well. Leave splitting on above, or there is no
+        first name to take. A track with no album artist tag goes under the first name of its own
+        credit. Turns believing that tag on with it.</string>
     <string name="library_prefer_known_artist">give a shared track to the artist you have most of</string>
-    <string name="library_prefer_known_artist_explainer">when a tag names several artists, the track
+    <string name="library_prefer_known_artist_explainer">When a tag names several artists, the track
         goes to whichever of them has the most records here instead of to whoever is written first —
-        so “craspore; angel vox” lands under angel vox if that is whose music you have. a guess on top
-        of the tags rather than what they say, which is why it is separate. turns the two settings
+        so “craspore; angel vox” lands under angel vox if that is whose music you have. A guess on top
+        of the tags rather than what they say, which is why it is separate. Turns the two settings
         above on with it.</string>
     <string name="library_fix_artists">fix artists doubling</string>
-    <string name="library_fix_artists_explainer">treats “Blink 182”, “Blink-182” and “Blink‐182” as
-        one artist, keeping the spelling most of your files use. a space, a hyphen and a dash between
+    <string name="library_fix_artists_explainer">Treats “Blink 182”, “Blink-182” and “Blink‐182” as
+        one artist, keeping the spelling most of your files use. A space, a hyphen and a dash between
         the same words are a difference in the tags, not in the band.</string>
     <string name="sleep_timer">sleep timer</string>
-    <string name="sleep_off">off</string>
+    <string name="sleep_off">Off</string>
     <!-- Time left on the sleep timer, e.g. "12:30 left". -->
     <string name="sleep_left">%1$s left</string>
     <string name="sleep_restart">start the timer again</string>
@@ -311,42 +325,42 @@
     <string name="library_min_length">ignore clips shorter than</string>
     <!-- Duration in whole seconds, e.g. "30 seconds". -->
     <string name="seconds">%1$d seconds</string>
-    <string name="library_scanning">scanning…</string>
+    <string name="library_scanning">Scanning…</string>
     <string name="lyrics_heading">lyrics</string>
     <string name="lyrics_lookup">look up lyrics</string>
-    <string name="lyrics_explainer">a .lrc or .txt file beside the track is used first, then the words
+    <string name="lyrics_explainer">A .lrc or .txt file beside the track is used first, then the words
         written inside the file itself, and a .lrc with timestamps in it makes them follow the music.
-        failing that they are looked up online. whether a song has any is checked once, in the
+        Failing that they are looked up online. Whether a song has any is checked once, in the
         background, and remembered — that is what greys out “show lyrics” for the ones that have
         none.</string>
     <string name="lyrics_service">look them up on</string>
     <string name="lyrics_service_lrclib">lrclib — can be synced</string>
     <string name="lyrics_service_genius">genius — text only</string>
-    <string name="lyrics_service_explainer">lrclib is a community collection of .lrc files, so what it
-        answers with often carries timings and follows the music. genius has deeper coverage of obscure
-        and non-english releases, and publishes words without timings. neither needs an account.
-        changing this forgets what the other one answered.</string>
+    <string name="lyrics_service_explainer">LRCLIB is a community collection of .lrc files, so what it
+        answers with often carries timings and follows the music. Genius has deeper coverage of obscure
+        and non-english releases, and publishes words without timings. Neither needs an account.
+        Changing this forgets what the other one answered.</string>
     <string name="lyrics_folder">lyrics folder</string>
     <string name="lyrics_folder_none">not set — files beside the track are found anyway</string>
-    <string name="lyrics_folder_explainer">only needed if you keep .lrc files somewhere other than
-        with the music, or if this phone will not hand over the one sitting next to a song. a folder
+    <string name="lyrics_folder_explainer">Only needed if you keep .lrc files somewhere other than
+        with the music, or if this phone will not hand over the one sitting next to a song. A folder
         given here is searched, and written to when the one beside the track cannot be.</string>
-    <string name="lyrics_folder_clear">forget this folder</string>
+    <string name="lyrics_folder_clear">forget folder</string>
     <string name="lyrics_save_lrc">save fetched lyrics as .lrc</string>
-    <string name="lyrics_save_lrc_explainer">writes what the service answers into a .lrc next to the
+    <string name="lyrics_save_lrc_explainer">Writes what the service answers into a .lrc next to the
         song — same folder, same name, the format every other player reads — so the words outlive
-        this app. one saved from lrclib carries its timings; genius publishes text and no timings, so
+        this app. One saved from LRCLIB carries its timings; Genius publishes text and no timings, so
         one saved from there does not.</string>
 
     <!-- The banner that confirms something was queued; the title of what was added follows it. -->
-    <string name="queued_heading">ADDED TO QUEUE</string>
+    <string name="queued_heading">Added to queue</string>
 
     <!-- ==== the queue screen, which is pulled up out of the player ==== -->
     <string name="queue_overline">NOW PLAYING</string>
     <string name="queue_title">queue</string>
     <!-- The word revealed behind a queue row as it is swiped aside. -->
     <string name="queue_remove">remove</string>
-    <string name="queue_empty">nothing is queued.</string>
+    <string name="queue_empty">Nothing is queued</string>
     <string name="queue_open">show the queue</string>
     <!-- Keeps the queue, in the order it is on screen, as a playlist. -->
     <string name="queue_save">save as playlist</string>
@@ -360,7 +374,7 @@
     <string name="menu_remove_from_playlist">remove from playlist</string>
     <string name="menu_hide">hide</string>
     <string name="menu_edit">edit</string>
-    <string name="menu_merge_genre">merge into…</string>
+    <string name="menu_merge_genre">merge into</string>
     <string name="search_placeholder">search</string>
 
     <!-- ==== searching the whole library, from the home panorama's application bar ==== -->
@@ -369,12 +383,13 @@
     <string name="action_search">search</string>
     <!-- Spoken name of the app bar's "…", which shows the captions of the buttons beside it. -->
     <string name="appbar_more">show button labels</string>
-    <string name="search_hint">type to search the whole library.</string>
+    <string name="search_hint">Type to search the whole library.</string>
     <!-- No result at all; the query is repeated back so it is clear what was asked. -->
-    <string name="search_nothing">nothing here matches “%1$s”.</string>
+    <string name="search_nothing">Nothing here matches “%1$s”</string>
+    <string name="press_back_again">Press back again to close</string>
     <!-- The state written under a switch's title on a settings row. -->
-    <string name="switch_on">on</string>
-    <string name="switch_off">off</string>
+    <string name="switch_on">On</string>
+    <string name="switch_off">Off</string>
     <string name="action_cancel">cancel</string>
 
     <!-- ==== how a section is arranged: the picker a group header opens on a hold ==== -->
@@ -419,17 +434,17 @@
     <string name="album_edit_album_artist">album artist</string>
     <string name="album_edit_year">year</string>
     <string name="album_edit_genre">genre</string>
-    <string name="album_edit_saving">saving…</string>
-    <string name="album_edit_manage">allow once, not per album</string>
-    <string name="album_edit_manage_explainer">android asks again for every album it has not been
-        asked about. from android 12 it can be told once instead, as a special app access you grant in
-        system settings — this takes you straight there. it needs two answers: android prompts first
+    <string name="album_edit_saving">Saving…</string>
+    <string name="album_edit_manage">allow once</string>
+    <string name="album_edit_manage_explainer">Android asks again for every album it has not been
+        asked about. From Android 12 it can be told once instead, as a special app access you grant in
+        system settings — this takes you straight there. It needs two answers: Android prompts first
         for a permission it calls “photos and videos” (that is its own name for it; this app reads no
         pictures), and then the switch on the page it opens.</string>
-    <string name="album_edit_explainer">this writes the tags inside the files themselves, so every app
-        sees the change and a rescan keeps it. android asks for your permission once before an app may
+    <string name="album_edit_explainer">This writes the tags inside the files themselves, so every app
+        sees the change and a rescan keeps it. Android asks for your permission once before an app may
         touch music it did not put there.</string>
-    <string name="album_edit_no_consent">android did not allow writing to these files.</string>
+    <string name="album_edit_no_consent">Android did not allow writing to these files.</string>
 
     <!-- ==== gestures ==== -->
     <string name="settings_gestures">gestures</string>
@@ -445,37 +460,37 @@
     <string name="gesture_queue_remove">swipe a song aside to remove it</string>
     <string name="gesture_lists">lists</string>
     <string name="gesture_edge_scroll">drag the left edge to scroll fast</string>
-    <string name="gesture_edge_scroll_explainer">a band down the left side of the artists, albums, songs
+    <string name="gesture_edge_scroll_explainer">A band down the left side of the artists, albums, songs
         and genres: drag it and the list travels its whole length under your finger, naming the letter
-        you have reached. it appears on lists longer than about two screens, and tapping a row there
+        you have reached. It appears on lists longer than about two screens, and tapping a row there
         still plays it.</string>
-    <string name="gesture_explainer">tapping always works and is not listed here. turn a gesture off
+    <string name="gesture_explainer">Tapping always works and is not listed here. Turn a gesture off
         if it fires when you did not mean it to.</string>
 
     <!-- ==== playlists (library settings) ==== -->
     <string name="playlists_heading">playlists</string>
     <string name="playlist_folder">playlist folder</string>
-    <string name="playlist_folder_explainer">playlists are plain .m3u files, so other players and
-        your computer can read them. by default they go in Music/Playlists; point this somewhere
+    <string name="playlist_folder_explainer">Playlists are plain .m3u files, so other players and
+        your computer can read them. By default they go in Music/Playlists; point this somewhere
         else if you keep them on a card or in a synced folder.</string>
-    <string name="playlist_folder_clear">use the default folder</string>
-    <string name="playlist_folder_private">the app\'s own folder — nothing else on the device can
-        see these. the shared Music folder refused.</string>
+    <string name="playlist_folder_clear">use default</string>
+    <string name="playlist_folder_private">The app\'s own folder — nothing else on the device can
+        see these. The shared Music folder refused.</string>
 
     <!-- ==== genres ==== -->
     <string name="library_fix_genres">fix genres doubling</string>
-    <string name="library_fix_genres_explainer">treats “Electro”, “electro” and “electro.” as one
-        genre, keeping the spelling most of your files use. hold a genre to merge it into another by
+    <string name="library_fix_genres_explainer">Treats “Electro”, “electro” and “electro.” as one
+        genre, keeping the spelling most of your files use. Hold a genre to merge it into another by
         hand.</string>
     <string name="menu_favorite">favorite</string>
     <string name="menu_unfavorite">unfavorite</string>
-    <string name="playlist_new_option">new playlist…</string>
+    <string name="playlist_new_option">new playlist</string>
     <string name="playlist_new_title">new playlist</string>
 
     <!-- ==== player ==== -->
     <string name="player_face_words">show the words</string>
     <string name="player_face_cover">show the album art</string>
-    <string name="player_nothing">nothing is playing</string>
+    <string name="player_nothing">Nothing is playing</string>
     <string name="player_shuffle_on">shuffle on</string>
     <string name="player_repeat_off">repeat off</string>
     <string name="player_repeat_all">repeat all</string>
@@ -483,26 +498,28 @@
     <string name="volume">volume</string>
 
     <!-- ==== lyrics page ==== -->
-    <string name="lyrics_none">no lyrics found for this one.</string>
-    <string name="lyrics_source">lyrics from genius</string>
-    <string name="lyrics_source_lrclib">lyrics from lrclib</string>
-    <string name="lyrics_source_file">from %1$s</string>
-    <string name="lyrics_source_tag">from the tags in %1$s</string>
-    <string name="lyrics_source_file_unnamed">from a file on this device</string>
+    <string name="lyrics_none">No lyrics found for this one</string>
+    <string name="lyrics_source">Lyrics from Genius</string>
+    <string name="lyrics_source_lrclib">Lyrics from LRCLIB</string>
+    <string name="lyrics_source_file">From %1$s</string>
+    <string name="lyrics_source_tag">From the tags in %1$s</string>
+    <string name="lyrics_source_file_unnamed">From a file on this device</string>
 
     <!-- ==== detail pages ==== -->
     <string name="album_title">album</string>
-    <string name="album_gone">this album is no longer on the device</string>
+    <string name="album_gone">This album is no longer on the device</string>
     <string name="album_unknown_year">unknown year</string>
     <string name="artist_title">artist</string>
-    <string name="artist_gone">this artist is no longer on the device</string>
-    <string name="genre_gone">nothing tagged with this genre any more</string>
+    <string name="artist_gone">This artist is no longer on the device</string>
+    <string name="genre_gone">Nothing tagged with this genre any more</string>
     <string name="playlist_not_found">not found</string>
-    <string name="playlist_gone">this playlist was deleted</string>
-    <string name="playlist_empty">nothing here yet — tap + below to add songs, or hold an album, an
+    <string name="playlist_gone">This playlist was deleted</string>
+    <string name="playlist_empty">Nothing here yet — tap + below to add songs, or hold an album, an
         artist or a song anywhere in the app</string>
-    <string name="playlists_empty">no playlists yet — tap + to make one</string>
+    <string name="playlists_empty">No playlists yet — tap + to make one</string>
     <string name="playlists_favorites">favorites</string>
+    <!-- The playlists page's app-bar button that plays the favorites; a verb, as a button is. -->
+    <string name="playlists_play_favorites">play favorites</string>
     <string name="playlist_rename_title">rename playlist</string>
     <string name="playlist_delete_title">delete playlist?</string>
     <!-- %1$s is the playlist's name. -->
@@ -521,10 +538,8 @@
     <string name="playlist_import">import</string>
     <string name="playlist_export">export</string>
     <string name="playlist_add_songs">add songs</string>
-    <!-- The app-bar caption for "add to playlist"; the long form is menu_add_to_playlist. -->
-    <string name="playlist_add_to_short">playlist</string>
     <string name="playlist_add_title">add songs</string>
-    <string name="playlist_add_empty">nothing matches</string>
+    <string name="playlist_add_empty">Nothing matches</string>
     <string name="playlist_select_all">all</string>
     <string name="playlist_select_none">none</string>
     <!-- %1$d is how many songs are ticked. -->
@@ -533,9 +548,9 @@
         <item quantity="other">%1$d selected</item>
     </plurals>
     <string name="playlist_add_done">add</string>
-    <string name="playlist_problem_save">could not save that playlist file</string>
-    <string name="playlist_problem_import">could not read that playlist</string>
-    <string name="playlist_problem_export">could not write that file</string>
+    <string name="playlist_problem_save">Could not save that playlist file</string>
+    <string name="playlist_problem_import">Could not read that playlist</string>
+    <string name="playlist_problem_export">Could not write that file</string>
 
     <!-- ==== permission gate ==== -->
     <string name="permission_title">no access</string>

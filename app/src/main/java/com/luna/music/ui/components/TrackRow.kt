@@ -84,7 +84,7 @@ fun TrackRow(
                     text = sub,
                     color = colors.subtle,
                     fontFamily = MetroRegular,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -110,7 +110,7 @@ fun TrackRow(
                 text = formatDuration(track.durationMs),
                 color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(start = 12.dp)
             )
         }
@@ -173,7 +173,7 @@ fun WideTile(
                 text = secondary,
                 color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

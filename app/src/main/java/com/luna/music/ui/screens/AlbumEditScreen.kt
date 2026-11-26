@@ -260,9 +260,9 @@ fun AlbumEditScreen(albumId: Long, onDone: () -> Unit) {
             Spacer(Modifier.height(20.dp))
             Text(
                 text = failure ?: stringResource(R.string.album_edit_explainer),
-                color = if (failure != null) colors.accent else colors.dim,
+                color = if (failure != null) colors.accent else colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp
+                fontSize = 15.sp
             )
 
             // The consent dialog is per set of files, so editing ten albums means answering it ten
@@ -283,9 +283,9 @@ fun AlbumEditScreen(albumId: Long, onDone: () -> Unit) {
                 Spacer(Modifier.height(10.dp))
                 Text(
                     text = stringResource(R.string.album_edit_manage_explainer),
-                    color = colors.dim,
+                    color = colors.subtle,
                     fontFamily = MetroRegular,
-                    fontSize = 13.sp
+                    fontSize = 15.sp
                 )
             }
             Spacer(Modifier.height(24.dp))

@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.metrocompose.MetroLight
 import com.metrocompose.MetroSemilight
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -159,18 +161,18 @@ private fun GestureSettings() {
         // list's own scrolling, so what it takes and what it leaves is worth saying outright.
         Text(
             text = stringResource(R.string.gesture_edge_scroll_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 6.dp)
         )
 
         Spacer(Modifier.height(18.dp))
         Text(
             text = stringResource(R.string.gesture_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }
@@ -203,9 +205,9 @@ private fun HiddenSettings() {
 
         Text(
             text = stringResource(R.string.hidden_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
         )
 
@@ -262,8 +264,8 @@ private fun ThemeSettings() {
         MetroSubheader(top = 0.dp, text = stringResource(R.string.theme_accent))
         FlowRow(
             Modifier.padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MetroAccents.forEach { (_, color) ->
                 val argb = color.toArgb()
@@ -279,8 +281,8 @@ private fun ThemeSettings() {
         MetroSubheader(top = 0.dp, text = stringResource(R.string.theme_background))
         FlowRow(
             Modifier.padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             BackgroundChoices.forEach { (_, argb) ->
                 Swatch(
@@ -327,9 +329,9 @@ private fun ThemeSettings() {
         Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.theme_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }
@@ -350,37 +352,45 @@ private fun InterfaceSettings() {
         MetroSubheader(top = 0.dp, text = stringResource(R.string.interface_sections))
         Text(
             text = stringResource(R.string.interface_sections_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
         )
         val order = settings.sections
         order.forEachIndexed { index, section ->
+            val shown = section.name !in settings.hiddenSections
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 6.dp),
+                Modifier.fillMaxWidth().padding(start = 12.dp, end = 24.dp, top = 2.dp, bottom = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "${index + 1}",
-                    color = colors.subtle,
-                    fontFamily = MetroRegular,
-                    fontSize = 16.sp,
-                    modifier = Modifier.width(26.dp)
-                )
-                Text(
-                    text = stringResource(sectionTitleOf(section)),
-                    color = colors.fg,
-                    fontFamily = MetroRegular,
-                    fontSize = 23.sp,
-                    modifier = Modifier.weight(1f)
-                )
+                // Whether the section is on the panorama at all; the name is part of the target, as
+                // a check box's label is.
+                Row(
+                    Modifier
+                        .weight(1f)
+                        .toggleable(
+                            value = shown,
+                            role = Role.Checkbox,
+                            onValueChange = { services.settings.setSectionShown(section, it) }
+                        )
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SectionCheck(checked = shown)
+                    Text(
+                        text = stringResource(sectionTitleOf(section)),
+                        color = if (shown) colors.fg else colors.subtle,
+                        fontFamily = MetroRegular,
+                        fontSize = 23.sp
+                    )
+                }
                 MoveButton(
                     label = stringResource(R.string.interface_move_up),
                     enabled = index > 0,
                     onClick = { services.settings.moveSection(section, -1) }
                 )
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(12.dp))
                 MoveButton(
                     label = stringResource(R.string.interface_move_down),
                     enabled = index < order.lastIndex,
@@ -398,9 +408,9 @@ private fun InterfaceSettings() {
         )
         Text(
             text = stringResource(R.string.interface_full_screen_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -413,9 +423,9 @@ private fun InterfaceSettings() {
         )
         Text(
             text = stringResource(R.string.interface_strip_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -438,9 +448,9 @@ private fun InterfaceSettings() {
         )
         Text(
             text = stringResource(R.string.interface_collapse_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -456,9 +466,9 @@ private fun InterfaceSettings() {
         )
         Text(
             text = stringResource(R.string.interface_artist_albums_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }
@@ -724,9 +734,9 @@ private fun LastFmSettings() {
             }
             Text(
                 text = stringResource(R.string.lastfm_loves_explainer),
-                color = colors.dim,
+                color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
             )
         }
@@ -736,9 +746,9 @@ private fun LastFmSettings() {
             MetroSubheader(top = 0.dp, text = stringResource(R.string.lastfm_api_key))
             Text(
                 text = stringResource(R.string.lastfm_key_explainer),
-                color = colors.dim,
+                color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)
             )
             Column(Modifier.padding(horizontal = 24.dp)) {
@@ -786,9 +796,9 @@ private fun PlaybackSettings() {
         )
         Text(
             text = stringResource(R.string.playback_normalize_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -824,9 +834,9 @@ private fun PlaybackSettings() {
         )
         Text(
             text = stringResource(R.string.resume_position_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }
@@ -896,17 +906,17 @@ private fun LibrarySettings() {
                 report.notMusic,
                 report.tooShort
             ),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         if (report.fromFolders > 0) {
             Text(
                 text = stringResource(R.string.library_scan_folders, report.fromFolders),
-                color = colors.dim,
+                color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
         }
@@ -922,9 +932,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_split_artists_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         SettingRow(
@@ -934,9 +944,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_album_artist_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         // Under the album artist row, because it is the other half of that answer and because the
@@ -948,9 +958,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_artists_album_artist_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         // Last of the three, because it only chooses between names the two above hand it — and its
@@ -962,9 +972,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_prefer_known_artist_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         SettingRow(
@@ -974,9 +984,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_fix_artists_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -989,9 +999,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.library_fix_genres_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -1004,9 +1014,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.artwork_online_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -1035,9 +1045,9 @@ private fun LibrarySettings() {
                     R.string.playlist_folder_explainer
                 }
             ),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         if (chosen != null) {
@@ -1058,9 +1068,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.lyrics_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -1072,9 +1082,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.lyrics_service_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -1093,9 +1103,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.lyrics_folder_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         if (folder != null) {
@@ -1115,9 +1125,9 @@ private fun LibrarySettings() {
         )
         Text(
             text = stringResource(R.string.lyrics_save_lrc_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }
@@ -1212,13 +1222,35 @@ private fun Swatch(color: Color, selected: Boolean, onClick: () -> Unit) {
     )
 }
 
-/** A small square nudge button — the reorder control, kept to the size of a glyph. */
+/**
+ * WP8's check box square, the accent filling it when it is ticked. Drawn here because the framework's
+ * `MetroCheckBox` brings a label of its own and this one sits in a row that already has the name.
+ * 12dp of the row's own padding sit around it, so the target is well over the guide's 9 mm.
+ */
+@Composable
+private fun SectionCheck(checked: Boolean) {
+    val colors = MetroTheme.colors
+    Box(
+        Modifier
+            .padding(start = 12.dp, end = 14.dp)
+            .size(28.dp)
+            .border(2.dp, if (checked) colors.accent else colors.subtle)
+            .background(if (checked) colors.accent else Color.Transparent),
+        contentAlignment = Alignment.Center
+    ) {
+        if (checked) {
+            Text("✓", color = colors.fg, fontFamily = MetroRegular, fontSize = 18.sp)
+        }
+    }
+}
+
+/** A square nudge button — the reorder control, 44dp: the guide's 7 mm floor for a touch target. */
 @Composable
 private fun MoveButton(label: String, enabled: Boolean, onClick: () -> Unit) {
     val colors = MetroTheme.colors
     Box(
         Modifier
-            .size(38.dp)
+            .size(44.dp)
             .border(2.dp, if (enabled) colors.fg else colors.dim.copy(alpha = 0.4f))
             .clickable(enabled = enabled) { onClick() },
         contentAlignment = Alignment.Center

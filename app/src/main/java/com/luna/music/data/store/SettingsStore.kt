@@ -270,11 +270,14 @@ data class Settings(
      * Let a big page title roll away as the list under it is scrolled, and come back when that list is
      * dragged past its top.
      *
-     * On by default: on a phone the title is worth a row and a half of library, and it has said what it
-     * has to say by the time you are reading the list. A switch because it is also *how you know where
-     * you are* — someone who navigates by that word rather than by what is under it wants it to stay.
+     * Off by default, because Microsoft's guidance is against it on both kinds of page: the Panorama
+     * best practices say to "avoid animating the panorama title or dynamically changing its size",
+     * and the UI Design and Interaction Guide says a page title, when shown, does not scroll and
+     * keeps the same space on every page, so the window does not seem to change size. A switch all
+     * the same, because on a phone the title is worth a row and a half of library and some people
+     * would rather have the rows.
      */
-    val collapseTitle: Boolean = true,
+    val collapseTitle: Boolean = false,
     /**
      * Hide the status bar, so a page runs to the top edge of the screen.
      *
@@ -305,6 +308,13 @@ data class Settings(
     val playerFaceName: String = PlayerFace.Cover.name,
     /** Home panorama section order; missing names are appended in their declared order. */
     val sectionOrder: List<String> = emptyList(),
+    /**
+     * Sections taken off the home panorama, by name. Microsoft's Panorama best practices recommend at
+     * most four sections, so each one can be turned off; none is off by default, which keeps the
+     * panorama the library it has always been until somebody decides otherwise. Settings stays
+     * reachable from the home app bar's menu with its section off.
+     */
+    val hiddenSections: List<String> = emptyList(),
     /** How each section is arranged, as an enum name; anything unknown reads as the default. */
     val songSortName: String = SongSort.Name.name,
     val albumSortName: String = AlbumSort.Name.name,
@@ -453,6 +463,10 @@ data class Settings(
             }
             return saved + LibrarySection.entries.filterNot { it in saved }
         }
+
+    /** The sections the panorama shows, in order: [sections] without the ones turned off. */
+    val shownSections: List<LibrarySection>
+        get() = sections.filterNot { it.name in hiddenSections }
 
     /**
      * Each arrangement as its enum. An unknown name — a file written by a later build, or one that has
@@ -616,6 +630,21 @@ class SettingsStore(context: Context, scope: CoroutineScope) {
 
     fun setSectionOrder(order: List<LibrarySection>) =
         store.update { it.copy(sectionOrder = order.map(LibrarySection::name)) }
+
+    /**
+     * Shows or hides one section. The last section showing cannot be hidden: a panorama with no
+     * sections is not a home screen.
+     */
+    fun setSectionShown(section: LibrarySection, shown: Boolean) = store.update { current ->
+        val hidden = current.hiddenSections.toMutableSet()
+        if (shown) {
+            hidden.remove(section.name)
+        } else {
+            val othersShown = current.sections.any { it != section && it.name !in hidden }
+            if (othersShown) hidden.add(section.name)
+        }
+        current.copy(hiddenSections = hidden.toList())
+    }
 
     /** Moves one section one place along, which is all the reordering UI needs. */
     fun moveSection(section: LibrarySection, by: Int) = store.update { current ->

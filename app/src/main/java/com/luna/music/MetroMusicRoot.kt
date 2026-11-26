@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,14 +32,16 @@ import androidx.compose.animation.core.animateFloatAsState
 import com.luna.music.ui.components.LocalBackdropPan
 import com.luna.music.ui.components.BackdropPan
 import com.luna.music.ui.components.HomeAppBar
+import com.luna.music.ui.components.AppBarDismissal
 import com.luna.music.ui.components.HomeAppBarRestingHeight
+import com.luna.music.ui.components.LocalAppBarDismissal
+import com.luna.music.ui.components.dismissesOpenAppBar
 import com.luna.music.ui.components.LocalHomeBarSpace
 import com.metrocompose.MetroBarRiseMillis
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.animation.core.tween
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -301,9 +302,20 @@ fun MetroMusicRoot(
     // One backdrop for the whole app: pages inside a MetroBackdrop leave their own background off, so
     // the gradient (or the cover, if settings say so) stays put while pages come and go over it
     // instead of the panorama having a wallpaper and every detail page dropping to flat black.
-    CompositionLocalProvider(LocalBackdropPan provides backdropPan) {
+    // An open application bar closes on a tap anywhere outside it (see ApplicationBar); this is
+    // the one place that hears every tap in the window.
+    val appBarDismissal = remember { AppBarDismissal() }
+    CompositionLocalProvider(
+        LocalBackdropPan provides backdropPan,
+        LocalAppBarDismissal provides appBarDismissal
+    ) {
     MetroBackdrop(backdrop = { AppBackdrop() }) {
-        Box(Modifier.fillMaxSize().onSizeChanged { windowHeightPx = it.height }) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .onSizeChanged { windowHeightPx = it.height }
+                .dismissesOpenAppBar(appBarDismissal)
+        ) {
         // No inset here on purpose: every page fills the window and the framework's own
         // components — MetroPage, MetroPanorama, MetroBottomBar — keep their *content* clear of the
         // gesture bar while their surfaces reach the bottom edge. Padding the whole column instead
@@ -393,17 +405,9 @@ fun MetroMusicRoot(
         // Searching the whole library is its one command, one tap from every section, and it does not
         // compete with the section headers, whose tap filters that section only.
         if (appBarPresent) {
-            // While the bar is open, a tap anywhere else puts it away and does nothing else — the
-            // phone's behaviour, and what keeps a tap meant for "close this" from opening an album.
-            if (appBarOpen) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) { detectTapGestures { appBarOpen = false } }
-                )
-            }
             HomeAppBar(
                 onSearch = { nav.push(Screen.Search) },
+                onSettings = { nav.push(Screen.Settings) },
                 insetNavigationBar = true,
                 expanded = appBarOpen,
                 onExpandedChange = { appBarOpen = it },
@@ -514,7 +518,7 @@ fun MetroMusicRoot(
             text = stringResource(R.string.queued_heading),
             color = MetroTheme.colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 11.sp
+            fontSize = 15.sp
         )
         Text(
             text = notice?.label.orEmpty(),
@@ -527,9 +531,9 @@ fun MetroMusicRoot(
         if (notice != null && notice.count > 1) {
             Text(
                 text = formatTrackCount(notice.count),
-                color = MetroTheme.colors.dim,
+                color = MetroTheme.colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 12.sp
+                fontSize = 15.sp
             )
         }
     }
@@ -575,11 +579,23 @@ fun MetroMusicRoot(
     // does as well.
     BackHandler(enabled = queueOpen) { queueOpen = false }
 
-    // Back on the first page leaves the app, in one press, with nothing asked. That is the platform's
-    // rule (WP8 certification required Back on an app's first screen to close it) and it costs a music
-    // app nothing: playback lives in the media service, not in this activity, so the song carries on
-    // and the notification, the lock screen and the strip bring it back. An app that has to be asked
-    // twice to go away is the thing that rule was written against.
+    // Leaving takes two presses. At the root of the stack a single stray Back — and the gesture is
+    // easy to trigger by accident on a tall phone — would otherwise close a music app mid-song.
+    //
+    // The second press is not handled here at all: arming the guard *disables* this handler, so Back
+    // falls through to the system and closes the activity the way it normally would. No `finish()`,
+    // and nothing to get wrong about which press was which.
+    var leaving by remember { mutableStateOf(false) }
+    // Not while the home app bar is open: Back closes that first (see ApplicationBar).
+    BackHandler(enabled = !playerOpen && !nav.canGoBack && !leaving && !appBarOpen) { leaving = true }
+    DropBanner(visible = leaving, onHide = { leaving = false }, lingerMillis = LeaveHintMillis) {
+        Text(
+            text = stringResource(R.string.press_back_again),
+            color = MetroTheme.colors.fg,
+            fontFamily = MetroRegular,
+            fontSize = 16.sp
+        )
+    }
 }
 
 /** How far the app bar rises into place as the player hands back to it, as the strip does. */
@@ -587,6 +603,9 @@ private val AppBarRise = 16.dp
 
 /** How much of the player's travel, at the strip end, is a cross-fade between the page and the strip. */
 const val StripHandOff = 0.1f
+
+/** How long the "press back again" hint stays up, and therefore the window for that press. */
+private const val LeaveHintMillis = 2200
 
 /** Shorter than that: it is a receipt, not a question, and the next album is one tap away. */
 private const val QueuedHintMillis = 1600

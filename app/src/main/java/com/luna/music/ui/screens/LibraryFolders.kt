@@ -94,9 +94,9 @@ internal fun LibraryFoldersSection() {
     MetroSubheader(top = 0.dp, text = stringResource(R.string.folders_heading))
     Text(
         text = stringResource(R.string.folders_explainer),
-        color = colors.dim,
+        color = colors.subtle,
         fontFamily = MetroRegular,
-        fontSize = 13.sp,
+        fontSize = 15.sp,
         modifier = Modifier.padding(horizontal = 24.dp)
     )
     Spacer(Modifier.height(6.dp))
@@ -165,9 +165,9 @@ internal fun LibraryFoldersSection() {
         )
         Text(
             text = stringResource(R.string.folders_full_access_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }

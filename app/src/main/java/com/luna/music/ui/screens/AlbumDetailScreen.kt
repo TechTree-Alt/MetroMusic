@@ -1,8 +1,11 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.AppBarMenuItem
 import com.luna.music.ui.components.ApplicationBar
 import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +38,6 @@ import com.luna.music.R
 import com.luna.music.core.LocalServices
 import com.luna.music.ui.Glyphs
 import com.luna.music.ui.components.AlbumArt
-import com.luna.music.ui.components.TitledPage
 import com.luna.music.ui.components.PlaylistPickerHost
 import com.luna.music.ui.components.TrackActionsHost
 import com.luna.music.ui.components.TrackRowWithActions
@@ -79,9 +81,10 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
     val rolling = settings.collapseTitle
 
     Box(Modifier.fillMaxSize()) {
-        // No overline: the artist is the accent link beside the cover, and saying it twice above
-        // the title only pushed the record down the page.
-        TitledPage(album.title) {
+        // "ALBUM" over the title, as ARTIST, GENRE and PLAYLIST are over theirs: the guide asks that a
+        // page title keep the same space on every page, so the list does not start at a different
+        // height on this one. The artist is the accent link beside the cover, not the overline.
+        MetroPage(stringResource(R.string.overline_album), album.title) {
         // Clipped, so the cover slides up behind the page's title instead of over it.
         Column(
             Modifier
@@ -109,20 +112,28 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
                     )
                     DetailLine(formatTrackCount(album.trackCount))
                     DetailLine(formatDuration(totalMs))
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(2.dp))
                     // The way to the artist is the artist's name. It was already drawn in the accent
                     // colour, which in this app means "this is a link" everywhere else — an
                     // accent-coloured line that does nothing when you press it is worse than no link
                     // at all, and it made the captioned "artist" button redundant.
-                    Text(
-                        text = album.artist,
-                        color = MetroTheme.colors.accent,
-                        fontFamily = MetroRegular,
-                        fontSize = 17.sp,
-                        modifier = Modifier
+                    //
+                    // The target is at least 44dp tall, the guide's 7 mm floor, however short the
+                    // one line of text inside it is.
+                    Box(
+                        Modifier
+                            .heightIn(min = 44.dp)
                             .clickable { onNavigate(Screen.ArtistDetail(album.artistId)) }
-                            .padding(top = 2.dp, bottom = 4.dp, end = 8.dp)
-                    )
+                            .padding(end = 8.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = album.artist,
+                            color = MetroTheme.colors.accent,
+                            fontFamily = MetroRegular,
+                            fontSize = 17.sp
+                        )
+                    }
                 }
             }
 
@@ -168,11 +179,13 @@ fun AlbumDetailScreen(albumId: Long, onNavigate: (Screen) -> Unit) {
                 // caption is what actually says which of the two it is.
                 glyphAction(Glyphs.Add, stringResource(R.string.action_play_next)) {
                     services.player.playNext(tracks, album.title)
-                },
-                // Adding a record to a playlist a track at a time was the thing the issue named.
-                // The caption is the short form: four captions across a phone is as many as the
-                // bar can spell out.
-                glyphAction(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
+                }
+            ),
+            // Adding a record to a playlist a track at a time was the thing the issue named. A menu
+            // item rather than a fourth icon: there is no icon that says "add to playlist", and the
+            // guidelines send exactly that kind of action to the menu.
+            menuItems = listOf(
+                AppBarMenuItem(stringResource(R.string.menu_add_to_playlist)) {
                     picker.open(tracks.map { it.id })
                 }
             )

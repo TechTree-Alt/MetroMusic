@@ -1,5 +1,6 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.AppBarMenuItem
 import com.luna.music.ui.components.ApplicationBar
 import com.luna.music.ui.components.glyphAction
 import androidx.compose.foundation.layout.Box
@@ -58,8 +59,10 @@ fun GenreDetailScreen(genre: String) {
                     },
                     glyphAction(Glyphs.Shuffle, stringResource(R.string.action_shuffle)) {
                         services.player.shuffleAll(tracks)
-                    },
-                    glyphAction(Glyphs.Grip, stringResource(R.string.playlist_add_to_short)) {
+                    }
+                ),
+                menuItems = listOf(
+                    AppBarMenuItem(stringResource(R.string.menu_add_to_playlist)) {
                         picker.open(tracks.map { it.id })
                     }
                 )

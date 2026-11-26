@@ -1,5 +1,6 @@
 package com.luna.music.ui.screens
 
+import com.luna.music.ui.components.AppBarMenuItem
 import com.luna.music.ui.components.ApplicationBar
 import com.luna.music.ui.components.glyphAction
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -134,15 +135,20 @@ fun PlaylistsScreen(onNavigate: (Screen) -> Unit) {
             ApplicationBar(
                 listOf(
                     glyphAction(Glyphs.Add, stringResource(R.string.action_new)) { creating = true },
-                    glyphAction(Glyphs.Import, stringResource(R.string.playlist_import)) {
-                        importFile.launch(arrayOf("*/*"))
-                    },
+                    // A verb, as a button's caption should be: it plays them, it is not a way to them.
                     glyphAction(
                         Glyphs.Play,
-                        stringResource(R.string.playlists_favorites),
+                        stringResource(R.string.playlists_play_favorites),
                         enabled = favorites.isNotEmpty()
                     ) {
                         services.player.play(favorites, 0)
+                    }
+                ),
+                // Bringing in a file from elsewhere is the less frequent task, which is what the
+                // menu is for.
+                menuItems = listOf(
+                    AppBarMenuItem(stringResource(R.string.playlist_import)) {
+                        importFile.launch(arrayOf("*/*"))
                     }
                 )
             )

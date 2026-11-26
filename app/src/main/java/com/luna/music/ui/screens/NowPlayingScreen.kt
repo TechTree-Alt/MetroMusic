@@ -918,7 +918,7 @@ private fun TimeLabel(text: String) {
         text = text,
         color = MetroTheme.colors.subtle,
         fontFamily = MetroRegular,
-        fontSize = 12.sp
+        fontSize = 15.sp
     )
 }
 

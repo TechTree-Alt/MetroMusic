@@ -110,9 +110,9 @@ internal fun AboutSettings() {
             )
             Text(
                 text = stringResource(R.string.about_licence),
-                color = colors.dim,
+                color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp
+                fontSize = 15.sp
             )
         }
 
@@ -139,18 +139,18 @@ internal fun AboutSettings() {
                 pluralStringResource(R.plurals.about_pokes, pokes, pokes) + " · " +
                     stringResource(pokeRemarkOf(pokes))
             },
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
         Spacer(Modifier.height(18.dp))
         Text(
             text = stringResource(R.string.about_explainer),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
 
@@ -165,15 +165,15 @@ internal fun AboutSettings() {
             text = stringResource(R.string.about_notices_body),
             color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(Modifier.height(10.dp))
         Text(
             text = stringResource(R.string.about_source),
-            color = colors.dim,
+            color = colors.subtle,
             fontFamily = MetroRegular,
-            fontSize = 13.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
     }

@@ -51,9 +51,9 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
             Spacer(Modifier.height(28.dp))
             Text(
                 text = stringResource(R.string.settings_credit),
-                color = colors.dim,
+                color = colors.subtle,
                 fontFamily = MetroRegular,
-                fontSize = 13.sp,
+                fontSize = 15.sp,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
         }
